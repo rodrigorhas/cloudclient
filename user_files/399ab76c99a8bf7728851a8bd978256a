@@ -1,0 +1,252 @@
+USE `cloudclient`;
+-- MySQL dump 10.13  Distrib 5.5.52, for debian-linux-gnu (x86_64)
+--
+-- Host: 127.0.0.1    Database: paineladmin
+-- ------------------------------------------------------
+-- Server version	5.5.52-0ubuntu0.14.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `files`
+--
+
+DROP TABLE IF EXISTS `files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `files` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_hash` varchar(32) NOT NULL,
+  `parent` int(11) DEFAULT NULL,
+  `is_root` int(11) DEFAULT '0',
+  `is_folder` int(11) DEFAULT '0',
+  `file_name` varchar(50) NOT NULL,
+  `file_type` varchar(80) DEFAULT NULL,
+  `file_hash` varchar(32) DEFAULT NULL,
+  `deleted` int(1) DEFAULT '0',
+  `file_info` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `files`
+--
+
+LOCK TABLES `files` WRITE;
+/*!40000 ALTER TABLE `files` DISABLE KEYS */;
+INSERT INTO `files` VALUES (5,'8d8dc8365532102b95949085d2c28b7f',NULL,1,1,'teste',NULL,NULL,0,NULL),(6,'8d8dc8365532102b95949085d2c28b7f',0,1,0,'2016-07-26 21.58.13.png','image/png','a916829696d0fa7cc3bd5d42a53b5646',1,'{\"size\":117292,\"c_time\":\"21/10/2016 03:23:23\",\"m_time\":\"21/10/2016 03:23:23\",\"a_time\":\"21/10/2016 03:23:23\",\"menuOptions\":[\"abrir\",\"renomear\",\"mover\",\"compartilhar\",\"download\",\"link\",\"favoritar\",\"detalhes\",\"remover\"],\"type\":\".png (image/png)\"}'),(7,'8d8dc8365532102b95949085d2c28b7f',5,0,0,'go.bat','application/octet-stream','d97a9a4d2fb33a73327225bdb2abe046',0,'{\"size\":1558,\"c_time\":\"21/10/2016 03:25:15\",\"m_time\":\"21/10/2016 03:25:15\",\"a_time\":\"21/10/2016 03:25:15\",\"menuOptions\":[\"abrir\",\"renomear\",\"mover\",\"compartilhar\",\"download\",\"link\",\"favoritar\",\"detalhes\",\"remover\"],\"type\":\".bat (application/octet-stream)\"}'),(8,'8d8dc8365532102b95949085d2c28b7f',0,1,0,'2016-07-26 21.58.13.png','image/png','28d52468cea9bdd1df264c577a178cc8',1,'{\"size\":117292,\"c_time\":\"21/10/2016 03:35:43\",\"m_time\":\"21/10/2016 03:35:43\",\"a_time\":\"21/10/2016 03:35:43\",\"menuOptions\":[\"abrir\",\"renomear\",\"mover\",\"compartilhar\",\"download\",\"link\",\"favoritar\",\"detalhes\",\"remover\"],\"type\":\".png (image/png)\"}'),(9,'8d8dc8365532102b95949085d2c28b7f',0,1,0,'2016-07-26 21.58.13.png','image/png','9d828963a0f0731fb3f10ac5af85edcf',0,'{\"size\":117292,\"c_time\":\"21/10/2016 03:36:28\",\"m_time\":\"21/10/2016 03:36:28\",\"a_time\":\"21/10/2016 03:36:28\",\"menuOptions\":[\"abrir\",\"renomear\",\"mover\",\"compartilhar\",\"download\",\"link\",\"favoritar\",\"detalhes\",\"remover\"],\"type\":\".png (image/png)\"}'),(10,'8d8dc8365532102b95949085d2c28b7f',5,0,1,'rodrigo',NULL,NULL,0,NULL);
+/*!40000 ALTER TABLE `files` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `files_meta`
+--
+
+DROP TABLE IF EXISTS `files_meta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `files_meta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `meta_key` varchar(255) DEFAULT NULL,
+  `meta_value` varchar(255) DEFAULT NULL,
+  `file_id` int(32) DEFAULT NULL,
+  `user_hash` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `files_meta`
+--
+
+LOCK TABLES `files_meta` WRITE;
+/*!40000 ALTER TABLE `files_meta` DISABLE KEYS */;
+INSERT INTO `files_meta` VALUES (1,'perms','abrir,renomear',1,'8d8dc8365532102b95949085d2c28b7f'),(3,'perms','abrir,renomear',6,'7aa6ac4381fa45f99a2e672dd5346bd4');
+/*!40000 ALTER TABLE `files_meta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `global_config`
+--
+
+DROP TABLE IF EXISTS `global_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `global_config` (
+  `name` varchar(255) DEFAULT NULL,
+  `logo` text,
+  `menuToggle` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `global_config`
+--
+
+LOCK TABLES `global_config` WRITE;
+/*!40000 ALTER TABLE `global_config` DISABLE KEYS */;
+INSERT INTO `global_config` VALUES ('ADA',NULL,1);
+/*!40000 ALTER TABLE `global_config` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `mail`
+--
+
+DROP TABLE IF EXISTS `mail`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `from` varchar(255) DEFAULT NULL,
+  `to` varchar(255) DEFAULT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `message` text,
+  `date` datetime DEFAULT NULL,
+  `read` int(11) DEFAULT NULL,
+  `folder` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mail`
+--
+
+LOCK TABLES `mail` WRITE;
+/*!40000 ALTER TABLE `mail` DISABLE KEYS */;
+INSERT INTO `mail` VALUES (1,'hacebe@gmail.com','rhas@gmail.com','Teste','Mensagem de Teste','2015-04-11 17:31:50',0,'1'),(2,'rhas@gmail.com','hacebe@gmail.com','Teste 2','Outra Mensagem','2015-04-11 17:32:20',0,'1');
+/*!40000 ALTER TABLE `mail` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `menus`
+--
+
+DROP TABLE IF EXISTS `menus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `menus` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `menu` varchar(100) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL,
+  `key` varchar(50) DEFAULT NULL,
+  `icon` varchar(50) DEFAULT NULL,
+  `order` int(11) DEFAULT NULL,
+  `divider` int(11) DEFAULT '0',
+  `parameters` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `menus`
+--
+
+LOCK TABLES `menus` WRITE;
+/*!40000 ALTER TABLE `menus` DISABLE KEYS */;
+INSERT INTO `menus` VALUES (1,'Usuarios',12,'#/users','md md-group',4,0,NULL),(4,'Páginas',12,'','md md-content-copy',3,0,NULL),(5,'Listar Páginas',4,'#/pages/list','',NULL,0,NULL),(6,'Nova Página',4,'#/pages/add','',NULL,0,NULL),(7,'Emails',13,'','md md-mail',2,0,NULL),(8,'Caixa de Entrada',7,'#/email/inbox',NULL,NULL,0,NULL),(9,'Escrever',7,'#/email/new',NULL,NULL,0,NULL),(10,'Dashboard',12,'#/dashboard','md md-dashboard',1,0,NULL),(11,'Chat',13,'#/chat','md md-chat',1,0,NULL),(12,'CMS',0,NULL,NULL,NULL,1,NULL),(13,'Menu',0,NULL,NULL,NULL,1,NULL),(14,'Configuracoes do Sistema',13,'.preventClick','md md-settings',9,0,'data-toggle=\"modal\"'),(15,'Relatórios',12,'#/reports','md md-description',4,0,NULL),(16,'Chat',15,'#/reports/chat',NULL,1,0,NULL),(17,'Diretório',13,'#/','md md-public',5,0,NULL);
+/*!40000 ALTER TABLE `menus` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `priorities`
+--
+
+DROP TABLE IF EXISTS `priorities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `priorities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `priorities`
+--
+
+LOCK TABLES `priorities` WRITE;
+/*!40000 ALTER TABLE `priorities` DISABLE KEYS */;
+INSERT INTO `priorities` VALUES (1,'Nivel 1'),(2,'Nivel 2'),(3,'Nivel 3'),(4,'Nivel 4'),(5,'Nivel 5'),(6,'Nivel 6'),(7,'Nivel 7');
+/*!40000 ALTER TABLE `priorities` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `priority_meta`
+--
+
+DROP TABLE IF EXISTS `priority_meta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `priority_meta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `priority_id` int(11) DEFAULT NULL,
+  `meta_key` varchar(255) DEFAULT NULL,
+  `meta_value` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `priority_meta`
+--
+
+LOCK TABLES `priority_meta` WRITE;
+/*!40000 ALTER TABLE `priority_meta` DISABLE KEYS */;
+INSERT INTO `priority_meta` VALUES (1,7,'allow_menu','1'),(2,7,'allow_menu','2'),(3,7,'allow_menu','3'),(4,7,'allow_menu','4'),(5,7,'allow_menu','5'),(6,7,'allow_menu','6'),(7,6,'allow_menu','1'),(8,6,'allow_menu','2'),(9,6,'allow_menu','4'),(10,6,'allow_menu','5'),(11,7,'allow_menu','7'),(12,7,'allow_menu','8'),(13,7,'allow_menu','9'),(14,7,'allow_menu','10'),(15,7,'allow_menu','11'),(16,7,'allow_menu','12'),(17,7,'allow_menu','13'),(18,6,'allow_menu','12'),(19,6,'allow_menu','13'),(20,7,'allow_menu','14'),(21,7,'allow_menu','15'),(22,7,'allow_menu','16'),(23,7,'allow_menu','17');
+/*!40000 ALTER TABLE `priority_meta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `username` varchar(32) DEFAULT NULL,
+  `password` varchar(64) DEFAULT NULL,
+  `hash` varchar(32) DEFAULT NULL,
+  `active` int(11) DEFAULT NULL,
+  `priority` int(11) DEFAULT NULL,
+  `lastlogin` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `user_img` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'Administrador','admin','4badaee57fed5610012a296273158f5f','f6fdffe48c908deb0f4c3bd36c032e72',1,7,'2016-10-21 17:18:39','https://s3.amazonaws.com/uifaces/faces/twitter/gerrenlamson/128.jpg'),(2,'Rodrigo','rodrigo','4badaee57fed5610012a296273158f5f','8d8dc8365532102b95949085d2c28b7f',1,7,'2016-10-21 17:18:39','https://s3.amazonaws.com/uifaces/faces/twitter/jsa/128.jpg'),(3,'Vinicius Hacebe','hacebe','4badaee57fed5610012a296273158f5f','7aa6ac4381fa45f99a2e672dd5346bd4',1,7,'2015-05-11 16:29:14','https://s3.amazonaws.com/uifaces/faces/twitter/mlane/128.jpg'),(4,'Alan Dutra','alan','349e772ae1fae0c0db7edca5e1fdae1d','6a7902e2328a819db5c5dce36311dc64',1,7,'2015-05-11 16:29:16','https://s3.amazonaws.com/uifaces/faces/twitter/rem/128.jpg');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-10-21 16:29:57
