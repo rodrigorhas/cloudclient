@@ -10,7 +10,7 @@ app.directive('onLastRepeat', function() {
     };
 });
 
-app.controller('mainController', function($scope, $http, $filter, $timeout, $mdSidenav, $mdUtil, $log){
+app.controller('mainController', function($scope, $http, $filter, $timeout, $mdSidenav, $mdUtil, $log, $compile){
 
 	scp = $scope;
 
@@ -344,29 +344,30 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 	    $('body').disableSelection();
 
 	    $scope.toggleFolder = function (e, opt){
-	    	$this = $(e.target);
+	    	var self = $(e.target);
 
-	    	if($this[0].localName !== "span"){
-	    		var item = ($this.parent().hasClass('open')) ? $this.parent() : $this.parents('.item');
-	    		var tempIcon = item.parent().find('core-icon[icon="folder-open"]');
-	    		if(tempIcon){
-		    		tempIcon.attr('icon', 'folder')
+	    	if(self[0].localName !== "span"){
+	    		var item = (self.parent().hasClass('open')) ? self.parent() : self.parents('.item');
+	    		var tempIcon = item.parent().find('i[name="folder-outline"]');
+
+	    		if(tempIcon.length) {
+		    		tempIcon.attr('name', 'folder')
 		    		item.parent().find('.open').removeClass('open')
 	    		}
 	    		
 	    	}else{
-	    		var item = $this.parent();
+	    		var item = self.parent();
 	    	}
 
 	    	var folder = item.find('.folder:first');
-	    	var icon = folder.find('core-icon:first');
+	    	var icon = folder.find('i:first');
 
 	    	if(!item.hasClass('open') || opt == true){
 	    		item.addClass('open');
-	    		icon.attr('icon', 'folder-open');
+	    		icon.parent().attr('name', 'folder-outline');
 	    	}else{
 	    		item.removeClass('open');
-	    		icon.attr('icon', 'folder');
+	    		icon.parent().attr('name', 'folder');
 	    	}
 	    };
 
@@ -449,26 +450,21 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		    	if($scope.currentFolder == arr) return false;
 		    	
-		    	if($scope.bcCurr < $scope.bc.length-1){
-		    		$scope.bc.splice($scope.bcCurr+1, $scope.bc.length-1);
-		    		$bcCurr = $scope.bc.length-1;
-		    	}
 
-		    	if(index !== undefined && index !== null){
-			    	$scope.currentFolder = arr;			    	
-			    	$scope.bc.push($scope.currentFolder);
-			    	$scope.bcCurr = $scope.bc.length-1;
-			    	$scope.selectedIcons = []; 
-		    		$scope.bcName = $scope.currentFolder.file_name;
-		    	}else{
-		    		$scope.$apply(function (){
-				    	$scope.currentFolder = arr;				    	
-				    	$scope.bc.push($scope.currentFolder)
-				    	$scope.bcCurr = $scope.bc.length-1;
-				    	$scope.selectedIcons = [];
-				    	$scope.bcName = $scope.currentFolder.file_name;
-		    		});
-		    	}
+		    	$timeout(function () {
+		    		var exists = false;
+
+			    	for (var i = 0; i < $scope.bc.length; i++) {
+			    		var item = $scope.bc[i];
+			    		if(item.id == arr.id) {
+			    			exists = true;
+			    			$scope.bc = $scope.bc.slice(0, i + 1);
+			    		}
+			    	}
+
+		    		$scope.currentFolder = arr;
+		    		if(!exists) $scope.bc.push($scope.currentFolder);
+		    	});
 	    	}
 	    }	
 
@@ -659,21 +655,10 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         }
 
         $scope.bcBack = function (){
-    		if ($scope.bcCurr > 0){
-    			$scope.currentFolder = $scope.bc[$scope.bcCurr-1];
-    			$scope.bcCurr --;
+    		if ($scope.bc.length > 1){
     			$scope.bc.pop();
-    			$scope.bcName = $scope.currentFolder.file_name;
+    			$scope.currentFolder = $scope.bc.slice(-1)[0];
     		}
-        }
-
-        $scope.bcForward = function (){
-        	if($scope.bcCurr < $scope.bc.length-1){        			        	
-	        	$scope.bcCurr ++;
-	        	$scope.currentFolder = $scope.bc[$scope.bcCurr];
-	        	$scope.bcName = $scope.currentFolder.file_name;
-        	}
-
         }
 
         $scope.destinationFolder = 0;
@@ -1017,7 +1002,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
         $scope.viewType = (!device) ? "view-module" : "view-list";
         $scope.changeView = function (){
-        	$this = $(this);
+        	var self = $(this);
         	var view = $('.shortcuts');
 
         	if($scope.viewType == "view-module"){
@@ -1057,185 +1042,240 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		}
 
-		function ContextMenu () {
-			this.dom = null;
-			this.id = null;
-			this.hash = null;
-			this.revert = true;
-			this.targetDom = null;
-			this.object = null;
-			this.threshold = 40;
-		};
+		$scope.ContextMenu = {
+			dom: null,
+			id: null,
+			hash: null,
+			revert: true,
+			targetDom: null,
+			object: null,
+			threshold: 40,
 
-		ContextMenu.prototype.create = function (e, target) {
+			create: function (e, target) {
+				this.targetDom = target;
+				this.id = target.data('id');
 
-			this.targetDom = target;
-			this.id = target.data('id');
+				var object = $scope.returnCurrentFolderObj(this.id).obj;
+				this.object = object;
+				this.hash = object.file_hash;
 
-			var object = $scope.returnCurrentFolderObj(this.id).obj;
-			this.object = object;
-			this.hash = object.file_hash;
+				//if(object.is_folder == 1) object.info = {menuOptions: null};
 
-			//if(object.is_folder == 1) object.info = {menuOptions: null};
+				var info = object.info;
 
-			var info = object.info;
+				if(info.menuOptions){
+					var defaultOptions = info.menuOptions;
 
-			if(info.menuOptions){
-				var defaultOptions = info.menuOptions;
-
-				var options = 
-				[{
-					abrir: '<li class="list-item"><paper-button><core-icon icon=""></core-icon>Abrir</paper-button></li>',
-					renomear: '<li class="list-item"><paper-button><core-icon icon="create"></core-icon>Renomear</paper-button></li>',
-					mover: '<li class="list-item"><paper-button><core-icon icon="folder"></core-icon>Mover para...</paper-button></li>',
-					remover: '<li class="list-item"><paper-button><core-icon icon="delete"></core-icon>Remover</paper-button></li>',
-					compartilhar: '<li class="list-item"><paper-button><core-icon icon="social:person-add"></core-icon>Compartilhar</paper-button></li>',
-					download: '<li class="list-item"><paper-button><core-icon icon="file-download"></core-icon>Download</paper-button></li>',
-					link: '<li class="list-item"><paper-button><core-icon icon="link"></core-icon>Copiar link</paper-button></li>',
-					detalhes: '<li class="list-item"><paper-button><core-icon icon="info"></core-icon>Detalhes</paper-button></li>',
-					favoritar: '<li class="list-item"><paper-button><core-icon icon="star"></core-icon>Favoritar</paper-button></li>'
-				},{
-					abrir: '<li class="list-item"><span fit>Abrir</span><paper-ripple fit></paper-ripple></li>',
-					renomear: '<li class="list-item"><span fit>Renomear</span><paper-ripple fit></paper-ripple></li>',
-					mover: '<li class="list-item"><span fit>Mover para...</span><paper-ripple fit></paper-ripple></li>',
-					remover: '<li class="list-item"><span fit>Remover</span><paper-ripple fit></paper-ripple></li>',
-					compartilhar: '<li class="list-item"><span fit>Compartilhar</span><paper-ripple fit></paper-ripple></li>',
-					download: '<li class="list-item"><span fit>Download</span><paper-ripple fit></paper-ripple></li>',
-					link: '<li class="list-item"><span fit>Copiar link</span><paper-ripple fit></paper-ripple></li>',
-					detalhes: '<li class="list-item"><span fit>Detalhes</span><paper-ripple fit></paper-ripple></li>',
-					favoritar: '<li class="list-item"><span fit>Favoritar</span><paper-ripple fit></paper-ripple></li>'
-				}];
-
-				var optionsString = "",
-				array = (device) ? options[0] : options[1];
-
-				for (var i = 0; i < defaultOptions.length; i++) {
-					for (var prop in array){
-						if(prop == defaultOptions[i])
-							optionsString += array[prop];
+					var createListItem = function (name, command) {
+						return '<li class="list-item" data-command="'+ command +'" ng-click="ContextMenu.chooseOption($event)"><span fit>' + name + '</span></li>'
 					}
-				};
 
-				var template = (device)
-				? '\
-					<div class="ContextMenu device">\
-						<div class="cm-overlay"></div>\
-						<div class="cm-container down" draggable="true">\
-							<ul class="cm-list">'+ optionsString +'</ul>\
+					var options = {
+						abrir: createListItem("Abrir", "abrir"),
+						renomear: createListItem("Renomear", "renomear"),
+						mover: createListItem("Mover para...", "mover"),
+						remover: createListItem("Remover", "remover"),
+						compartilhar: createListItem("Compartilhar", "compartilhar"),
+						download: createListItem("Download", "download"),
+						link: createListItem("Link", "link"),
+						detalhes: createListItem("Detalhes", "detalhes"),
+						favoritar: createListItem("Favoritar", "favoritar")
+					};
+
+					var optionsString = "";
+
+					for (var i = 0; i < defaultOptions.length; i++) {
+						if(options[defaultOptions[i]]) {
+							optionsString += options[defaultOptions[i]];
+						}
+					};
+
+					var template = '\
+						<div class="ContextMenu '+ (device ? "device" : "desktop") +'">\
+							<div class="cm-overlay"></div>\
+							<div class="cm-container down" draggable="'+ (device ? "true" : "false") +'">\
+								<ul class="cm-list">'+ optionsString +'</ul>\
+							</div>\
 						</div>\
-					</div>\
-				'
-				: '\
-					<div class="ContextMenu desktop">\
-						<div class="cm-overlay"></div>\
-						<div class="cm-container" draggable="false">\
-							<ul class="cm-list">'+ optionsString +'</ul>\
-						</div>\
-					</div>\
 					';
+
+					template = $compile($(template))($scope);
+
+					$(template).appendTo($('body'));
+
+					this.dom = $('.ContextMenu');
+
+					this.dom.data('isDevice', device);
+
+					var self = this;
+					$timeout(function (){
+						self.setListeners(e);
+					});
+
+				}else{
+					return false;
+				}
+			},
+
+			show: function (e) {
+				var cmenu = this.dom;
+				var c = cmenu.find('.cm-container');
+				var o = cmenu.find('.cm-overlay');
+
+				var self = this;
 				
-				$(template).appendTo($('body'));
+				if(device){
+					cmenu.css('z-index', 19);
+					c.css('top', this.dif);
+					cmenu.show();
 
-				this.dom = $('.ContextMenu');
+					o.fadeIn(250, function (){
+						c.removeClass('down');
+					});
+				}else{
 
-				this.dom.data('isDevice', device);
+					var s = $('.shortcuts');
+					var a = $('aside');
+		    		var sw = s.width() + a.width();
+		    		var sh = s.height();
 
-				var $this = this;
-				$timeout(function (){
-					$this.setListeners(e);
-				});
+		    		var cmenu = this.dom.find('.cm-list');
+		    		var cw = cmenu.width();
+		    		var ch = cmenu.children().length * 48;
 
-			}else{
-				return false;
-			}
-		}
+					var x = e.pageX;
+		    		var y = e.pageY;
 
-		ContextMenu.prototype.show = function (e) {
-			var cmenu = this.dom;
-			var c = cmenu.find('.cm-container');
-			var o = cmenu.find('.cm-overlay');
+		    		function calc (x, y) {
+		    			if(ch >= 300) ch = 300;
+		    			if(x + cw > sw){x = x - cw;}
+		        		if(y + ch > sh ){y = y - ch;}
+		        		return {x: x, y: y}
+		    		}
 
-			$this = this;
-			
-			if(device){
-				cmenu.css('z-index', 19);
-				c.css('top', this.dif);
-				cmenu.show();
+		    		var fc = calc (x, y);
 
-				o.fadeIn(250, function (){
-					c.removeClass('down');
-				});
-			}else{
+					c.css({top: fc.y, left: fc.x});
+					c.fadeIn(150);
+					//o.show();
 
-				var s = $('.shortcuts');
-				var a = $('aside');
-	    		var sw = s.width() + a.width();
-	    		var sh = s.height();
+				}
+			},
 
-	    		var cmenu = this.dom.find('.cm-list');
-	    		var cw = cmenu.width();
-	    		var ch = cmenu.children().length * 48;
+			hide: function () {
+				var self = this;
+				var c = this.dom.find('.cm-container');
+				var o = this.dom.find('.cm-overlay');
 
-				var x = e.pageX;
-	    		var y = e.pageY;
+				if(device){
+					c.addClass('down');
+					o.fadeOut(400, function() {
+						self.dom.hide();
+						self.dom.off();
+						self.dom.remove();
+					});
+				}else{
+					self.dom.fadeOut(50, function (){
+						self.dom.off();
+						self.dom.remove();
+					});
+				}
+			},
 
-	    		function calc (x, y) {
-	    			if(ch >= 300) ch = 300;
-	    			if(x + cw > sw){x = x - cw;}
-	        		if(y + ch > sh ){y = y - ch;}
-	        		return {x: x, y: y}
-	    		}
+			chooseOption: function (e) {
+				var self = this;
+				var target = $(e.target);
+				var option = target.data("command");
+				var obj = self.object;
 
-	    		var fc = calc (x, y);
+				self.hide();
+		
+	        	switch (option){ // SINGLE ACTION
+	        		case "abrir":
+	        			var types = ['.jpeg','.jpg','.gif','.png', '.jpeg','.bmp', '.mp4', '.3gp', '.wav', '.mp3'];
+	  					var typeStr;
 
-				c.css({top: fc.y, left: fc.x});
-				c.fadeIn(150);
-				//o.show();
+	        			var type = -1;
 
-			}
+	        			if(obj.info.type){
+		        			var t = obj.info.type;
+		        			var nt = t.split(' ');
+		        			typeStr = nt[1];
+		        			type = types.indexOf(nt[0]);
+	        			}else{
+	        				console.log('this obj dont have info');
+	        			}
 
-		}
+		        		if(obj.is_folder == 1){
+							$scope.openFolder(obj);
+		    			}else if(obj.is_folder == 0 && type != -1){
+		    				$scope.validFormat(obj);
+		    			}
 
-		ContextMenu.prototype.hide = function () {
-			var c = this.dom.find('.cm-container');
-			var o = this.dom.find('.cm-overlay');
+	        			break;
 
-			$this = this;
-			if(device){
-				c.addClass('down');
-				o.fadeOut(400, function() {
-					$this.dom.hide();
-					$this.dom.off();
-					$this.dom.remove();
-				});
-			}else{
-				$this.dom.fadeOut(50, function (){
-					$this.dom.off();
-					$this.dom.remove();
-				});
-			}
+	    			case "remover":
+						$scope.deleteFromStructure(self.id);
+	        			break;
 
-		}
+	        		case "detalhes":
+						if(obj.is_folder == 0 || obj.is_folder == 1){
+							$scope.showInfo(obj);
+						}
+	        			break;
 
-		ContextMenu.prototype.setListeners = function (event) {
+        			case "renomear":
 
-			var c = this.dom.find('.cm-container');
-			var c_height = c.find('.cm-list').height() + 16;
-			var o = this.dom.find('.cm-overlay');
-			var wh = $(window).height();
+						$scope.rename(self.object);
+	        			break;
+
+        			case "enviar_arquivo":
+						tabs.selected = 1;
+		    			pages.selected = 1;
+			    		ub.addClass('active');
+	        			break;
+
+        			case "nova_pasta":
+						$scope.createFolder(self.id);
+	        			break;
+
+        			case "download":
+						$scope.downloadFile(self.hash);
+	        			break;
+
+        			case "mover":
+        				$scope.toggleDialog(null, function (){
+        					$('[affirmative]').on('click', function (e){
+        						e.preventDefault();
+        						$scope.moveToFolder(obj);
+        						$(this).off();
+        					})
+        				});
+	        			break;
+
+	        		default:
+        			break;
+	        	}
+			},
+
+			setListeners: function (event) {
+
+				var c = this.dom.find('.cm-container');
+				var c_height = c.find('.cm-list').height() + 16;
+				var o = this.dom.find('.cm-overlay');
+				var wh = $(window).height();
 
 
-			function getPercentage (e) {
-				return wh * (e / 100);
-			}
+				function getPercentage (e) {
+					return wh * (e / 100);
+				}
 
-			$this = this;
+				var self = this;
 
-			var threshold = this.threshold;
-
+				var threshold = this.threshold;
 
 				o.on('click', function (){
-					$this.hide();
+					self.hide();
 				});
 
 				var dif = (wh - c_height);
@@ -1248,22 +1288,22 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 						axis: "y",
 						cursor: "default",
 						revert: function (){
-							return $this.revert;
+							return self.revert;
 						},
 
 						start: function (){
-							$this.revert = true;
+							self.revert = true;
 						},
 
 						drag: function (e, ui){
 							var pos = ui.position.top;
 
-							if(pos < $this.dif){
-								ui.position.top = $this.dif;
+							if(pos < self.dif){
+								ui.position.top = self.dif;
 							}
 
 							if(pos > getPercentage(threshold) ){
-								$this.revert = false;
+								self.revert = false;
 							}
 						},
 
@@ -1271,118 +1311,33 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 							var pos = ui.position.top;
 
 							if(pos > getPercentage(threshold)){
-								$this.revert = false;
-								$this.hide();
+								self.revert = false;
+								self.hide();
 							}
 
 							if(pos <= getPercentage(threshold)){
-								$this.revert = true;
+								self.revert = true;
 							}
 						}
 					});	
 				}
 
-				o.on('click', function (){
-					$this.hide();
-				});
-
-				this.dom.on('contextmenu', function(e){
+				self.dom.on('contextmenu', function(e){
 					e.preventDefault();
-					$this.hide();
+					self.hide();
 				});
 
-				this.dom.find('paper-button, paper-ripple').on('click', function (e){
-					var target = $(e.target);
-
-					if(target[0].localName == "paper-button"){
-						var option = target[0].textContent;
-					}else{
-						var option = target.parent().find('span')[0].outerText;
-					}
-
-					var em = $('.editMode');
-
-					var obj = $this.object;
-
-					$this.hide();
-    		
-		        	switch (option){ // SINGLE ACTION
-		        		case "Abrir":
-		        			var types = ['.jpeg','.jpg','.gif','.png', '.jpeg','.bmp', '.mp4', '.3gp', '.wav', '.mp3'];
-		  					var typeStr;
-
-		        			var type = -1;
-
-		        			if(obj.info.type){
-			        			var t = obj.info.type;
-			        			var nt = t.split(' ');
-			        			typeStr = nt[1];
-			        			type = types.indexOf(nt[0]);
-		        			}else{
-		        				console.log('this obj dont have info');
-		        			}
-
-			        		if(obj.is_folder == 1){
-								$scope.openFolder(obj);
-			    			}else if(obj.is_folder == 0 && type != -1){
-			    				$scope.validFormat(obj);
-			    			}
-
-		        			break;
-
-		    			case "Remover":
-							$scope.deleteFromStructure($this.id);
-		        			break;
-
-		        		case "Detalhes":
-							if(obj.is_folder == 0 || obj.is_folder == 1){
-								$scope.showInfo(obj);
-							}
-		        			break;
-
-	        			case "Renomear":
-
-							$scope.rename($this.object);
-		        			break;
-
-	        			case "Enviar arquivo":
-							tabs.selected = 1;
-			    			pages.selected = 1;
-				    		ub.addClass('active');
-		        			break;
-
-	        			case "Nova pasta":
-							$scope.createFolder($this.id);
-		        			break;
-
-	        			case "Download":
-							$scope.downloadFile($this.hash);
-		        			break;
-
-	        			case "Mover para...":
-	        				$scope.toggleDialog(null, function (){
-	        					$('[affirmative]').on('click', function (e){
-	        						e.preventDefault();
-	        						$scope.moveToFolder(obj);
-	        						$(this).off();
-	        					})
-	        				});
-		        			break;
-
-		        		default:
-	        			break;
-		        	}
-				});
+				
 				this.show(event);
-			}	
+			}
+		}
 
-		//}
 
 		$('.shortcuts').on('contextmenu', '.icon', function(e){
 			e.preventDefault();
 			var target = $(e.target);
 			var target = (target.data('id')) ? target : target.parents('.icon');
-			new ContextMenu().create(e, target);
+			$scope.ContextMenu.create(e, target);
 		});
 
 		// DRAWER OR SIDENAV (AMD)

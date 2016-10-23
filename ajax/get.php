@@ -291,6 +291,8 @@
 		
 		break;
 		case "tree":
+			$mysqli->query("set names utf8");
+
 				$query = "SELECT
 						files.id,
 						files.parent,
@@ -305,7 +307,7 @@
 						files
 						WHERE
 						files.deleted = 0 and
-						files.user_hash = '". $hash ."'";
+						files.group_hash = '". $hash ."'";
 			
 				$result = $mysqli->query($query) or die($mysqli->error);
 			
@@ -399,7 +401,7 @@
 		    	$rootObj->deleted = 0;
 		    	//$rootObj->children = array($sharedFolder);
 		    	$rootObj->children = array();
-		    	$rootObj->id = null;			
+		    	$rootObj->id = -1;
 
 		    	for ($i=0; $i < sizeof($tree); $i++) { 
 		    		$rootObj->children[] = $tree[$i];

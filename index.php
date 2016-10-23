@@ -32,12 +32,12 @@
 			<span class="userName"></span>
 			
 			<form action="" class="form">
-				<paper-input Label="Password" type="password"></paper-input>
+				<input label="Password" type="password"></paper-input>
 			</form>
 			
 			<div class="block">
-				<paper-button ng-click="logOff()">sair</paper-button>
-				<paper-button raised class="white" ng-click="logConfirm()">confirmar</paper-button>
+				<button class="btn" ng-click="logOff()">sair</button>
+				<button class="btn btn-raised" ng-click="logConfirm()">confirmar</button>
 			</div>
 		</div>
 		<div class="center off min">
@@ -48,19 +48,19 @@
 			<img alt="" class="userPhoto">
 
 			<form action="" class="form">
-				<paper-input Label="Username" id="username" ng-model="uname"></paper-input>
+				<input label="Username" id="username" ng-model="uname"></input>
 			</form>
 
 			<div class="part2 hide">
 				<span class="userName">{{uname}}</span>
 
 				<form action="" class="form">
-					<paper-input Label="Password" type="password" ng-model="upass"></paper-input>
+					<input label="Password" type="password" ng-model="upass"></input>
 				</form>
 
 				<div class="block">
-					<paper-button ng-click="logOff()">sair</paper-button>
-					<paper-button raised class="white" ng-click="logConfirm()">confirmar</paper-button>
+					<button ng-click="logOff()">sair</button>
+					<button raised class="white" ng-click="logConfirm()">confirmar</button>
 				</div>
 			</div>
 
@@ -69,100 +69,58 @@
 
 	<nav>
 		<div class="nav-wrapper">
-	
-			<!-- <icon ng-show="bcCurr < bc.length-1 && ws > 640 " name="arrow-forward" ng-click="bcForward()"></icon> -->
-			<span class="breadcrumbs">{{breadcrumbs()}}</span>
-			
-
-			<ul class="hide-on-med-and-down">
-				<li>
-					<a href="#" ng-click="Drawer.open()"><icon name="menu"></icon></a>
-				</li>
-
-				<li><a href="#"><icon name="menu" ng-click="toggleLeft()"></icon></a></li>
-				<li><a href="#"><icon ng-show="bc.length > 0" name="arrow-back" ng-click="bcBack()"></icon></a></li>
-				<li><a href="#"></a></li>
-			</ul>
-			
-			<!-- <div class="searchForm" horizontal layout>
+			<div class="searchForm" horizontal layout>
 				<span flex ng-hide="ws < 640"></span>
 				<input type="text" ng-model="fileSearch" placeholder="Pesquise por arquivos da pasta..." flex three ng-class="{min: ws < 640}" />
 				<span flex>
 					<paper-icon-button icon="close"></paper-icon-button>
 				</span>
-			</div> -->
-
-			<!-- <a href="#" class="brand-logo">Logo</a> -->
-			<ul id="nav-mobile" class="right hide-on-med-and-down">
-				<li>
-					<a href="#" ng-show="ws > 640" ng-click='fullscreen($event)'>
-						<icon  name="fullscreen" ></icon>
-					</a>
-				</li>
-				<li>
-					<a href="#" ng-click="changeView()" ng-show="ws > 640">
-						<icon name="{{viewType}}"></icon>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<icon name="search"></icon>
-					</a>
-				</li>
-			</ul>
-
-			<div class="editMode" horizontal layout ng-class="{'active': EditMode.active}">
-				<span class="brand" flex ng-if="EditMode.selection.length != 0" >{{EditMode.selection.length}} <div class="inline" ng-if="EditMode.selection.length > 1">itens selecionados</div><div class="inline" ng-if="EditMode.selection.length == 1">item selecionado</div></span>
-				<span flex ng-if="EditMode.selection.length == 0"></span>
-				<span ng-show="ws > 640">
-					<button ng-click="toggleDialog()">
-						<svg style="width:24px;height:24px" viewBox="0 0 24 24">
-						    <path fill="white" d="M9,18V15H5V11H9V8L14,13M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />
-						</svg>
-						Mover
-					</button>
-					<button ng-click="EditMode.selectAll()">
-						<icon name="done-all"></icon>
-						selecionar todos
-					</button>
-					<button ng-click="EditMode.deleteSelection()">
-						<icon name="delete"></icon>
-						delete
-					</button>
-					<button ng-click="EditMode.setState(false, $event)">
-						<icon name="block"></icon>
-						cancelar
-					</button>
-				</span>
-				<span ng-show="ws < 640">
-					menu em construção
-				</span>
 			</div>
+	
+			<button class="btn btn-flat" ng-click="toggleLeft()"><icon name="menu" ></icon></button>
+			<!-- <icon ng-show="bcCurr < bc.length-1 && ws > 640 " name="arrow-forward" ng-click="bcForward()"></icon> -->
+			<button class="btn btn-flat" ng-show="bc.length > 1 && ws > 640" ng-click="bcBack()">
+				<icon name="arrow-back" ></icon>
+			</button>
+
+			<span class="breadcrumbs">{{breadcrumbs()}}</span>
+
+
+			<button class="btn btn-flat" ng-show="ws > 640" ng-click='fullscreen($event)'><icon  name="fullscreen" ></icon></butotn>
+			<button class="btn btn-flat" ng-click="changeView()" ng-show="ws > 640"><icon name="{{viewType}}"></icon></butotn>
+			<button class="btn btn-flat"><icon name="search"></icon></butotn>
 		</div>
 	</nav>
+
+	<div class="editMode" horizontal layout ng-class="{'active': EditMode.active}">
+		<span class="brand" flex ng-if="EditMode.selection.length != 0" >{{EditMode.selection.length}} <div class="inline" ng-if="EditMode.selection.length > 1">itens selecionados</div><div class="inline" ng-if="EditMode.selection.length == 1">item selecionado</div></span>
+		<span flex ng-if="EditMode.selection.length == 0"></span>
+		<span ng-show="ws > 640">
+			<button class="btn" ng-click="toggleDialog()">
+				<svg style="width:24px;height:24px" viewBox="0 0 24 24">
+				    <path fill="white" d="M9,18V15H5V11H9V8L14,13M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" />
+				</svg>
+				Mover
+			</button>
+			<button class="btn" ng-click="EditMode.selectAll()">
+				<icon name="done-all"></icon>
+				selecionar todos
+			</button>
+			<button class="btn" ng-click="EditMode.deleteSelection()">
+				<icon name="delete"></icon>
+				delete
+			</button>
+			<button class="btn" ng-click="EditMode.setState(false, $event)">
+				<icon name="block"></icon>
+				cancelar
+			</button>
+		</span>
+		<span ng-show="ws < 640">
+			menu em construção
+		</span>
+	</div>
 	
-	<!-- <core-toolbar>
-		<paper-icon-button icon="menu" ng-click="Drawer.open()"></paper-icon-button>
-		<paper-icon-button icon="menu" ng-click="toggleLeft()"></paper-icon-button>
-		<paper-icon-button ng-show="bc.length > 0" icon="arrow-back" ng-click="bcBack()"></paper-icon-button>
-		<paper-icon-button ng-show="bcCurr < bc.length-1 && ws > 640 " icon="arrow-forward" ng-click="bcForward()"></paper-icon-button>
-		<span class="breadcrumbs">{{breadcrumbs()}}</span>
-		<span flex></span>
-		<paper-icon-button ng-click='fullscreen($event)' icon="fullscreen" ng-show="ws > 640"></paper-icon-button>
-		<paper-icon-button icon="{{viewType}}" ng-click="changeView()" ng-show="ws > 640"></paper-icon-button>
-		<paper-icon-button icon="search"></paper-icon-button>
-		
-		
-		<div class="searchForm" horizontal layout>
-			<span flex ng-hide="ws < 640"></span>
-			<input type="text" ng-model="fileSearch" placeholder="Pesquise por arquivos da pasta..." flex three ng-class="{min: ws < 640}" />
-			<span flex>
-				<paper-icon-button icon="close"></paper-icon-button>
-			</span>
-		</div>
-	
-		
-	</core-toolbar> -->
+	<br/>
 
 	<aside>
 		<div class="tree">
@@ -170,7 +128,7 @@
 		        <span class="before" ng-if="category.children.length" ng-click="toggleFolder($event)">‣</span>
 
 				<div class="folder" ng-click="openFolder(category, $index);toggleFolder($event, true)" title="{{category.file_name}}">
-					<core-icon icon="folder"></core-icon>
+					<icon name="folder"></icon>
 					{{category.file_name}}
 				</div>
 
@@ -182,66 +140,63 @@
 		</div>
 	</aside>
 
-	<!-- <div class="archive_viewer">
+	<div class="archive_viewer">
 		<div class="shortcuts {{viewType}}">
 			<div class="icon" data-id="{{file.id}}" data-index="{{$index}}" ng-repeat="file in currentFolder.children | filter: {file_name: fileSearch, deleted: 0} " title="{{file.file_name}}" on-last-repeat>
-				<div ng-if="file.is_folder == 1" ng-dblclick="openFolder(file, $index, $event)" data-tap="true" layout horizontal>
-					<i>
-						<paper-icon-button icon="done" ng-click="EditMode.setState(true, $event)"></paper-icon-button>
-					</i>
+				<div class="content-container" ng-if="file.is_folder == 1" ng-dblclick="openFolder(file, $index, $event)" data-tap="true" layout horizontal>
+					<!-- <button class="btn btn-flat toggle-check">
+						<icon name="check" ng-click="EditMode.setState(true, $event)"></icon>
+					</button> -->
 					<span flex>
-						<core-icon size="52" icon="folder"></core-icon>
+						<icon name="folder"></icon>
 						<p>{{file.file_name}}</p>
 					</span>
 				</div>
-				<div ng-if="file.is_folder == 0" ng-dblclick="validFormat(file)" data-tap="true" layout horizontal>
-					<i>
-						<paper-icon-button icon="done" ng-click="EditMode.setState(true, $event)"></paper-icon-button>
-					</i>
+				<div class="content-container" ng-if="file.is_folder == 0" ng-dblclick="validFormat(file)" data-tap="true" layout horizontal>
 					<span flex>
-						<core-icon size="52" icon="description"></core-icon>
+						<icon name="file"></icon>
 						<p>{{file.file_name}}</p>
 					</span>
 				</div>
 			</div>
 		</div>
-	</div> -->
+	</div>
 
-		<div class="upload_board">
-			<div class="up-header">
-				Central de uploads
-				<div class="up-close" ng-click="closeUb($event)">&times;</div>
-			</div>
-			<paper-tabs selected="0">
-			  <paper-tab>EM ANDAMENTO</paper-tab>
-			  <paper-tab>ENVIAR</paper-tab>
-			</paper-tabs>
-			<core-pages selected="0">
-			  <section id='upload-list'>
-			  	<div class="up-body">
-					<table class="table table-hover">
-						<thead>
-							<th>Nome do arquivo</th>
-							<th>Progresso</th>
-							<th>Opçoes</th>
-						</thead>
-						<tbody></tbody>
-					</table>
-				</div>
-			  </section>
-			  <section class="upload-container">
-			  	<form method="post" enctype="multipart/form-data">
-					<span class='alert'></span>
-					<paper-button raised id="upButton">
-						<span>Escolher</span>
-						<input class="fileAttach" type="file" name="fileAttach">
-					</paper-button>
-					<paper-button ng-click="uploadFile($event)" raised>Enviar</paper-button>
-                </form>
-			  </section>
-			</core-pages>
-			
+	<div class="upload_board">
+		<div class="up-header">
+			Central de uploads
+			<div class="up-close" ng-click="closeUb($event)">&times;</div>
 		</div>
+		<paper-tabs selected="0">
+		  <paper-tab>EM ANDAMENTO</paper-tab>
+		  <paper-tab>ENVIAR</paper-tab>
+		</paper-tabs>
+		<core-pages selected="0">
+		  <section id='upload-list'>
+		  	<div class="up-body">
+				<table class="table table-hover">
+					<thead>
+						<th>Nome do arquivo</th>
+						<th>Progresso</th>
+						<th>Opçoes</th>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		  </section>
+		  <section class="upload-container">
+		  	<form method="post" enctype="multipart/form-data">
+				<span class='alert'></span>
+				<paper-button raised id="upButton">
+					<span>Escolher</span>
+					<input class="fileAttach" type="file" name="fileAttach">
+				</paper-button>
+				<paper-button ng-click="uploadFile($event)" raised>Enviar</paper-button>
+            </form>
+		  </section>
+		</core-pages>
+		
+	</div>
 
 <!-- 		<paper-action-dialog class="dialog" heading="Selecione uma pasta:" backdrop="true" vertical layout>
   <script type="text/ng-template" id="moveFolderTree">
@@ -376,7 +331,7 @@
 
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery-ui.js"></script>
-	<script src="js/bootstrap.min.js"></script>
+	<script src="app/vendor/materializecss/js/index.js"></script>
 	
 	<script src="js/jquery.ui.touch-punch.min.js"></script>
 	<!-- <script src="js/angular-min.js"></script> -->
@@ -384,12 +339,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
 
-    <!-- <script src="app/directives/autofocus.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.js"></script>
+	<script src="js/app.js"></script>
+
     <script src="app/directives/autogrow.js"></script>
     <script src="app/directives/btn-class.js"></script>
     <script src="app/directives/icon.js"></script>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.js"></script>
-	<script src="js/app.js"></script>
 	</body>
 </html>
