@@ -3,7 +3,7 @@ angular.module("App")
 	return {
 		restrict: "A",
 		link: function (scope, element) {
-			$timeout(() => element.focus());
+			$timeout(() => element.focus(), 40);
 		}
 	}
 }]);

@@ -9,7 +9,7 @@
 	<!-- css -->
 	<link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="fonts/zmdi/css/material-design-iconic-font.min.css">
-	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.css">
+	<link rel="stylesheet" href="app/vendor/angular-material/angular-material.min.css">
 	<link href="css/materialize.css" rel="stylesheet" />
 	<link href="css/flexboxgrid.min.css" rel="stylesheet" />
 	<link href="css/jquery-ui.css" rel="stylesheet" />
@@ -32,7 +32,9 @@
 			<span class="userName"></span>
 			
 			<form action="" class="form">
-				<input label="Password" type="password"></paper-input>
+				<div class="input-field">
+					<input label="Password" type="password"></input>
+				</div>
 			</form>
 			
 			<div class="block">
@@ -43,24 +45,25 @@
 		<div class="center off min">
 
 			<!-- <img class="logo" src="icons/logo.fw.png" /> -->
-			<h5>Clique para fazer login</h5>
-
 			<img alt="" class="userPhoto">
 
 			<form action="" class="form">
-				<input label="Username" id="username" ng-model="uname"></input>
+				<div class="input-field">
+					<input label="Username" id="username" autofocus ng-model="uname"></input>
+				</div>
 			</form>
 
 			<div class="part2 hide">
-				<span class="userName">{{uname}}</span>
 
 				<form action="" class="form">
-					<input label="Password" type="password" ng-model="upass"></input>
+					<div class="input-field">
+						<input label="Password" type="password" ng-model="upass"></input>
+					</div>
 				</form>
 
 				<div class="block">
-					<button ng-click="logOff()">sair</button>
-					<button raised class="white" ng-click="logConfirm()">confirmar</button>
+					<button class="btn btn-flat text-white" ng-click="logOff()">sair</button>
+					<button class="btn" ng-click="logConfirm()">confirmar</button>
 				</div>
 			</div>
 
@@ -73,7 +76,7 @@
 				<span flex ng-hide="ws < 640"></span>
 				<input type="text" ng-model="fileSearch" placeholder="Pesquise por arquivos da pasta..." flex three ng-class="{min: ws < 640}" />
 				<span flex>
-					<paper-icon-button icon="close"></paper-icon-button>
+					<icon name="close"></icon>
 				</span>
 			</div>
 	
@@ -85,10 +88,11 @@
 
 			<span class="breadcrumbs">{{breadcrumbs()}}</span>
 
-
-			<button class="btn btn-flat" ng-show="ws > 640" ng-click='fullscreen($event)'><icon  name="fullscreen" ></icon></butotn>
-			<button class="btn btn-flat" ng-click="changeView()" ng-show="ws > 640"><icon name="{{viewType}}"></icon></butotn>
-			<button class="btn btn-flat"><icon name="search"></icon></butotn>
+			<div class="right">
+				<button class="btn btn-flat" ng-show="ws > 640" ng-click='fullscreen($event)'><icon  name="fullscreen" ></icon></butotn>
+				<button class="btn btn-flat" ng-click="changeView()" ng-show="ws > 640"><icon name="{{viewType}}"></icon></butotn>
+				<button class="btn btn-flat"><icon name="search"></icon></butotn>
+			</div>
 		</div>
 	</nav>
 
@@ -129,7 +133,7 @@
 
 				<div class="folder" ng-click="openFolder(category, $index);toggleFolder($event, true)" title="{{category.file_name}}">
 					<icon name="folder"></icon>
-					{{category.file_name}}
+					<span class="folder_name">{{category.file_name}}</span>
 				</div>
 
 		        <div class="sub-item" ng-if="category.children.length">
@@ -237,8 +241,8 @@
 		<div class="fab">
 			<div ng-mouseleave="visible = false; hideTooltips()">
 				<button class="button " ng-mouseenter="visible = true; showTooltips()" ng-class="{hover: visible}">
-				   <core-icon class="icon first-icon" icon="add"></core-icon>
-				   <core-icon class="icon second-icon" icon="close"></core-icon>
+				   <icon class="icon first-icon" name="add"></icon>
+				   <icon class="icon second-icon" name="close"></icon>
 				</button>
 				<content ng-class="{show: visible, hide: !visible}">
 					<ul>
@@ -321,7 +325,6 @@
     	<div class="dv-close">
 			<paper-icon-button icon="arrow-back" ng-click="closeDetails()"></paper-icon-button>
 		</div>
-		<pre>{{fileInfo}}</pre>
 		<p><b>Criado em:</b> {{fileInfo.c_time}}</p>
 		<p><b>Data de modificação:</b> {{fileInfo.m_time}}</p>
 		<p><b>Ultimo acesso:</b> {{fileInfo.a_time}}</p>
@@ -335,11 +338,10 @@
 	
 	<script src="js/jquery.ui.touch-punch.min.js"></script>
 	<!-- <script src="js/angular-min.js"></script> -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.js"></script>
+	<script src="app/vendor/angular/angular.min.js"></script>
+	<script src="app/vendor/angular/angular-animate.min.js"></script>
+	<script src="app/vendor/angular/angular-aria.min.js"></script>
+	<script src="app/vendor/angular-material/angular-material.min.js"></script>
 	<script src="js/app.js"></script>
 
     <script src="app/directives/autogrow.js"></script>

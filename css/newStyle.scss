@@ -104,6 +104,7 @@ nav {
 .btn {
 	&:not(.btn-flat) {
 		background-color: #fff;
+		color: #333;
 	}
 
 	i {
@@ -235,12 +236,17 @@ aside {
 				outline: none;
 			}
 
-			.folder, .file {
+			.folder {
 				display: block;
 				margin-left: 14px;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+				outline: none;
+
+				span {
+					margin-left: 8px;
+				}
 			}
 
 			.sub-item {
@@ -703,18 +709,17 @@ html /deep/ paper-action-dialog::shadow #scroller {
 	color: white;
 	font-weight: 500;
 
-	paper-ripple {
-		position: absolute;
-		top: 0;
-		right: 0;
-		left: 0;
-		bottom: 0;
-		z-index: 20;
+	input:not([type]),
+	input[type=text],
+	input[type=password] {
 
-		&.min {
-			z-index: -1;
+		margin: 0;
+		text-align: center;
+
+		&:focus:not([readonly]) {
+			border-bottom: 1px solid white;
+			box-shadow: none;
 		}
-
 	}
 
 	.center {
@@ -817,37 +822,6 @@ html /deep/ paper-action-dialog::shadow #scroller {
 			transform: translateY(20%);
 			transition: opacity .4s, transform .6s, visibility .4s;
 			transition-delay: 400ms;
-			
-			paper-input /deep/ .floated-label .label-text {
-				color: #6384E3;
-			}
-
-			paper-input {
-
-				width: 100%;
-
-				&[type="password"] /deep/ {
-					#input {
-						-webkit-text-security: disc;
-						-moz-text-security: disc;
-						-ms-text-security: disc;
-						-o-text-security: disc;
-						text-security: disc;
-					}
-				}
-
-				& /deep/ {
-					#input {
-						font-weight: 300;
-						text-align: center;
-					}
-
-					.focused-underline {
-						background-color: white;
-					}
-				}
-			}
-
 		}
 
 		.block {
@@ -859,9 +833,12 @@ html /deep/ paper-action-dialog::shadow #scroller {
 			transition-delay: 400ms;
 			width: 105%;
 
-			.white {
-				background-color: white;
-				color: #333;
+			button {
+				margin: 0 8px;
+			}
+
+			.text-white {
+				color: white;
 			}
 		}
 

@@ -159,26 +159,29 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		// LOGIN FUNCTIONS 
 
-		$('#logTouchFx').on('down', function (e){
+		$(document).on('ready', function (e){
 			var l = $('.login');
 			var ci = l.find('.center.in');
 			var co = l.find('.center.off');
-			var p = l.find('paper-ripple');
 			var h = l.find('h5');
 			var target = $(e.target);
 
 			var i = co.find('[ng-model="uname"]');
 
+			$timeout(function () {
+				co.removeClass("off");
+			}, 500);
+
 			if(!ci.hasClass('min')){
 				co.toggleClass('min');
+			}
 
-				p.fadeOut();
-			}else{
+			else {
 				co.toggleClass('min');
-				if(co.find('paper-input').val() != ""){
+
+				if(co.find('input').val() != ""){
 					co.find('img').addClass('show');
 				}
-				p.fadeOut();
 			}
 
 			$timeout(function(){
