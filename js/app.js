@@ -3,28 +3,29 @@ var app = angular.module('App', ['ngMaterial']);
 var scp;
 
 app.directive('onLastRepeat', function() {
-    return function(scope, element, attrs) {
-        if (scope.$last) setTimeout(function(){
-            scope.$emit('onRepeatLast', element, attrs);
-        }, 1);
-    };
+	return function(scope, element, attrs) {
+		if (scope.$last) setTimeout(function(){
+			scope.$emit('onRepeatLast', element, attrs);
+		}, 1);
+	};
 });
 
-app.controller('mainController', function($scope, $http, $filter, $timeout, $mdSidenav, $mdUtil, $log, $compile){
+app.controller('mainController', function($scope, $http, $filter, $timeout, $mdSidenav, $mdUtil, $log, $compile, $mdBottomSheet, $mdDialog){
 
-	scp = $scope;
+	scope = $scope;
 
-	var tt = $('[data-toggle="tooltip"]');
-	tt.tooltip({container: 'body',trigger: 'manual'});
+	$scope.currentViewType = 'folder-list';
 
-	$scope.showTooltips = function (){
-		if($('.tooltip')[0]) return;
-		$timeout(function () { tt.tooltip('show')});
-	}
+	$http.get("ajax/get.php?module=getTipoDeArquivos").success(function(data) {
+		$timeout(function() { $scope.all_file_types = data; });
+	});
 
-	$scope.hideTooltips = function (){
-		tt.tooltip('hide');
-	}
+	$timeout(function () {
+		$(".modal-trigger").leanModal();
+		$('select').material_select();
+	})
+
+	$('[data-tooltip]').tooltip({position: 'left', delay: 50});
 
 	var tabs = document.querySelector('paper-tabs');
 	var pages = document.querySelector('core-pages');
@@ -39,7 +40,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 	if(tabs) {
 		tabs.addEventListener('core-select',function(){
-		  pages.selected = tabs.selected;
+			pages.selected = tabs.selected;
 		});
 	}
 
@@ -51,18 +52,18 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 		function requestFS(){
 			
 		    var rfs = // for newer Webkit and Firefox
-		           el.requestFullScreen
-		        || el.webkitRequestFullScreen
-		        || el.mozRequestFullScreen
-		        || el.msRequestFullscreen
-			;
-			if(typeof rfs!="undefined" && rfs){
-			  rfs.call(el);
-			} else if(typeof window.ActiveXObject!="undefined"){
+		    el.requestFullScreen
+		    || el.webkitRequestFullScreen
+		    || el.mozRequestFullScreen
+		    || el.msRequestFullscreen
+		    ;
+		    if(typeof rfs!="undefined" && rfs){
+		    	rfs.call(el);
+		    } else if(typeof window.ActiveXObject!="undefined"){
 			  // for Internet Explorer
 			  var wscript = new ActiveXObject("WScript.Shell");
 			  if (wscript!=null) {
-			     wscript.SendKeys("{F11}");
+			  	wscript.SendKeys("{F11}");
 			  }
 			}			
 		}
@@ -70,34 +71,34 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 		function cancelFS(){
 			var el = document;
 			var rfs = // for newer Webkit and Firefox
-		           el.cancelFullScreen
-		        || el.webkitCancelFullScreen		        
-		        || el.mozCancelFullScreen
-		        || el.exitFullscreen
+			el.cancelFullScreen
+			|| el.webkitCancelFullScreen		        
+			|| el.mozCancelFullScreen
+			|| el.exitFullscreen
 			;
-                        
-            if (typeof rfs!="undefined" && rfs) { // cancel full screen.
-                rfs.call(el);
-            } else if (typeof window.ActiveXObject!="undefined") { // Older IE.
-                var wscript = new ActiveXObject("WScript.Shell");
-                if (wscript != null) {
-                    wscript.SendKeys("{F11}");
-                }
-        
-        	}
-		}
 
-		
+            if (typeof rfs!="undefined" && rfs) { // cancel full screen.
+            	rfs.call(el);
+            } else if (typeof window.ActiveXObject!="undefined") { // Older IE.
+            	var wscript = new ActiveXObject("WScript.Shell");
+            	if (wscript != null) {
+            		wscript.SendKeys("{F11}");
+            	}
+
+            }
+        }
+
+
         var isInFullScreen = (document.fullScreenElement && document.fullScreenElement !== null) ||  (document.mozFullScreen || document.webkitIsFullScreen);
         
         if (isInFullScreen) {
-            cancelFS();
-            target.attr('icon', 'fullscreen');
+        	cancelFS();
+        	target.attr('icon', 'fullscreen');
         } else {
-            requestFS();
-            target.attr('icon', 'fullscreen-exit');
+        	requestFS();
+        	target.attr('icon', 'fullscreen-exit');
         }
-	}
+    }
 
 	//end fullscreen
 
@@ -113,21 +114,22 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		function setTapListener () {
 			if(!device) return;
-			var b = $('[data-tap="true"]');
-			b.off();
+			$timeout(function () {
+				var b = $('[data-tap="true"]');
+				b.off();
 
-			$scope.onRepeatLast(function (){
-				b = $('[data-tap="true"]');
-			    b.on("click", function(e) {
+				b.on("click", function(e) {
 					if(!$('.editMode').hasClass('active')){
 						var t = ($(e.target).data('id')) ? $(e.target) : $(e.target).parents('.icon');
 						t = t.find('div');						
 						t.dblclick();
-					}else{
+					}
+
+					else {
 						e.preventDefault();
 					}
-				});		
-	    	});
+				});
+			})
 		}
 
 		// CHECK USER SESSION
@@ -159,20 +161,24 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		// LOGIN FUNCTIONS 
 
-		$(document).on('ready', function (e){
+		$(function () {
 			var l = $('.login');
 			var ci = l.find('.center.in');
 			var co = l.find('.center.off');
 			var h = l.find('h5');
-			var target = $(e.target);
 
 			var i = co.find('[ng-model="uname"]');
 
 			$timeout(function () {
-				co.removeClass("off");
+				co.addClass('min');
+
+				$timeout(function () {
+					i.focus();
+				}, 1000);
 			}, 500);
 
-			if(!ci.hasClass('min')){
+
+			/*if(!ci.hasClass('min')){
 				co.toggleClass('min');
 			}
 
@@ -182,11 +188,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 				if(co.find('input').val() != ""){
 					co.find('img').addClass('show');
 				}
-			}
-
-			$timeout(function(){
-				i.focus();
-			});
+			}*/
 		});
 
 		$scope.authUser = function (callback){
@@ -259,63 +261,63 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		}
 
-	    var typingTimer;                
-	    var doneTypingInterval = 1000;
-	    var usel = $('#username');
-	    var pssel = $('[ng-model="upass"');
-	    $scope.userImg = false;
+		var typingTimer;                
+		var doneTypingInterval = 1000;
+		var usel = $('#username');
+		var pssel = $('[ng-model="upass"');
+		$scope.userImg = false;
 
-	    usel.keyup(function(){
-	      clearTimeout(typingTimer);
-	      typingTimer = setTimeout($scope.doneTyping, doneTypingInterval);
-	    });
+		usel.keyup(function(){
+			clearTimeout(typingTimer);
+			typingTimer = setTimeout($scope.doneTyping, doneTypingInterval);
+		});
 
-	    pssel.keydown(function(e){
-	   		var key = e.keyCode || e.which;
-	    	if(key == 13) $scope.logConfirm();
-	    });
-	    
-	    usel.keydown(function(e){
-	   	var key = e.keyCode || e.which;
+		pssel.keydown(function(e){
+			var key = e.keyCode || e.which;
+			if(key == 13) $scope.logConfirm();
+		});
+
+		usel.keydown(function(e){
+			var key = e.keyCode || e.which;
 	   	//if(key == 9) e.preventDefault(); return;
-	      clearTimeout(typingTimer);
-	    });
+	   	clearTimeout(typingTimer);
+	   });
 
-	    $scope.doneTyping = function () {
-	      $sb = usel.val();
-	      if($sb !== "" && $sb !== undefined && $sb !== null){
-	        $.ajax({
-	        	url: 'ajax/get.php?module=getUserImg',
-	        	method: 'POST',
-	        	data: {u: $sb},
-	        	success: function (data){
-	        		if(data != "404"){
-	        			$scope.userImg = data;
-						localStorage.setItem('cc-u-p', data);
-	        			var u = $('.userPhoto');
-	        			u.attr('src', data);
-	        			u.addClass('show');
+		$scope.doneTyping = function () {
+			$sb = usel.val();
+			if($sb !== "" && $sb !== undefined && $sb !== null){
+				$.ajax({
+					url: 'ajax/get.php?module=getUserImg',
+					method: 'POST',
+					data: {u: $sb},
+					success: function (data){
+						if(data != "404"){
+							$scope.userImg = data;
+							localStorage.setItem('cc-u-p', data);
+							var u = $('.userPhoto');
+							u.attr('src', data);
+							u.addClass('show');
 
-	        			var l = $('.login');
-						var ci = l.find('.center.in');
-						var co = l.find('.center.off');
-						var p = l.find('paper-ripple');
-						var h = l.find('h5');
-						var pt2 = co.find('.part2');
-						
-						pt2.removeClass('hide');
-						pt2.find('paper-input').focus();
+							var l = $('.login');
+							var ci = l.find('.center.in');
+							var co = l.find('.center.off');
+							var p = l.find('paper-ripple');
+							var h = l.find('h5');
+							var pt2 = co.find('.part2');
 
-	        		}
-	        	}
-	        });
-	        
-	      }
-	    };
+							pt2.removeClass('hide');
+							pt2.find('paper-input').focus();
 
-	    $scope.emptySearchbar = function () {
-	      usel.val('');
-	    }
+						}
+					}
+				});
+
+			}
+		};
+
+		$scope.emptySearchbar = function () {
+			usel.val('');
+		}
 
 		function applyRowGrid () {
 			$(".shortcuts.view-module").rowGrid({itemSelector: ".icon", minMargin: 36, maxMargin: 50, firstItemClass: "first-item"});
@@ -327,94 +329,104 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			});
 		}
 
-		$scope.getTree = function (){
+		$scope.getTree = function () {
 
-			$http.get('ajax/get.php?module=tree').success(function (data) {	    	
+			$http.get("ajax/get.php?module=getDepartamentos").success(function (data) {
+				$scope.currentFolder = data;
+				$scope.departamentos = data;
+				$scope.bc.push({file_name: "Empresa"});
+			});
+
+			$timeout(function () {
+				$scope.currentViewType = "folder-list";
+			});
+
+			/*$http.get('ajax/get.php?module=tree').success(function (data) {	    	
 		    	$scope.categories = data;
 		    	$scope.currentFolder = data[0];
 		    	$scope.bc.push($scope.currentFolder);
 		    	//setTapListener();
-		    });
+		    });*/
 		}	
-	    
-	    $.fn.disableSelection = function() {
-	        return this
-	                 .attr('unselectable', 'on')
-	                 .css('user-select', 'none')
-	                 .on('selectstart', false);
-	    };
 
-	    $('body').disableSelection();
+		$.fn.disableSelection = function() {
+			return this
+			.attr('unselectable', 'on')
+			.css('user-select', 'none')
+			.on('selectstart', false);
+		};
 
-	    $scope.toggleFolder = function (e, opt){
-	    	var self = $(e.target);
+		$('body').disableSelection();
 
-	    	if(self[0].localName !== "span"){
-	    		var item = (self.parent().hasClass('open')) ? self.parent() : self.parents('.item');
-	    		var tempIcon = item.parent().find('i[name="folder-outline"]');
+		$scope.toggleFolder = function (e, opt){
+			var self = $(e.target);
 
-	    		if(tempIcon.length) {
-		    		tempIcon.attr('name', 'folder')
-		    		item.parent().find('.open').removeClass('open')
-	    		}
-	    		
-	    	}else{
-	    		var item = self.parent();
-	    	}
+			if(self[0].localName !== "span"){
+				var item = (self.parent().hasClass('open')) ? self.parent() : self.parents('.item');
+				var tempIcon = item.parent().find('i[name="folder-outline"]');
 
-	    	var folder = item.find('.folder:first');
-	    	var icon = folder.find('i:first');
+				if(tempIcon.length) {
+					tempIcon.attr('name', 'folder')
+					item.parent().find('.open').removeClass('open')
+				}
 
-	    	if(!item.hasClass('open') || opt == true){
-	    		item.addClass('open');
-	    		icon.parent().attr('name', 'folder-outline');
-	    	}else{
-	    		item.removeClass('open');
-	    		icon.parent().attr('name', 'folder');
-	    	}
-	    };
+			}else{
+				var item = self.parent();
+			}
 
-	    $('[icon="search"], .searchForm [icon="close"]').on('click', function (){
-	    	$('.searchForm').toggleClass('active');
+			var folder = item.find('.folder:first');
+			var icon = folder.find('i:first');
+
+			if(!item.hasClass('open') || opt == true){
+				item.addClass('open');
+				icon.parent().attr('name', 'folder-outline');
+			}else{
+				item.removeClass('open');
+				icon.parent().attr('name', 'folder');
+			}
+		};
+
+		$('[icon="search"], .searchForm [icon="close"]').on('click', function (){
+			$('.searchForm').toggleClass('active');
 	    	// limpa o campo de pesquisa
 	    	$scope.$apply(function (){
 	    		$scope.fileSearch = "";
 	    	});
 	    });
 
-	    $(window).keydown(function(e) {
-	    	var key = (e.which) ? e.which : e.keyCode;
-	    	var sf = $('.searchForm');
-	    	var input = sf.find('input');
-	    	var ub = $('.upload_board');
+		$(window).keydown(function(e) {
+			var key = (e.which) ? e.which : e.keyCode;
+			var sf = $('.searchForm');
+			var input = sf.find('input');
+			var ub = $('.upload_board');
 
-	    	if(key == 27 && (sf.hasClass('active') || ub.hasClass('active'))){
-    			e.preventDefault();
-	    		sf.removeClass('active');
-	    		
+			if(key == 27 && (sf.hasClass('active') || ub.hasClass('active'))){
+				e.preventDefault();
+				sf.removeClass('active');
+
 	    		// refaz a funçao closeUb
 	    		ub.removeClass('active');
-				setTimeout(function (){
-					$('.upload_board').hover(function () {
-						ub.addClass('active');
-						ub.off();
-					});
-				}, 1000);
+	    		setTimeout(function (){
+	    			$('.upload_board').hover(function () {
+	    				ub.addClass('active');
+	    				ub.off();
+	    			});
+	    		}, 1000);
 
 	    		// limpa o campo de pesquisa
 	    		$scope.$apply(function (){
-		    		$scope.fileSearch = "";
-		    	});
+	    			$scope.fileSearch = "";
+	    		});
 
 	    	}else if(e.ctrlKey && key == 70){
-    			e.preventDefault();
+	    		e.preventDefault();
 	    		if(!sf.hasClass('active')){
 	    			sf.addClass('active');
 	    			input.focus();
 	    		}
 	    	}else if (e.ctrlKey && key == 85 ){ // upload shortcut
-    			e.preventDefault();
-    			$scope.showUploadBoard();
+	    		e.preventDefault();
+	    		$scope.showUploadBoard();
 	    	}else if (e.ctrlKey && e.altKey && key == 78){ //create new folder
 	    		e.preventDefault();
 	    		$scope.createFolder($scope.currentFolder.id);
@@ -424,17 +436,119 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 		$scope.showUploadBoard = function (c) {
 
 			var ub = $('.upload_board');
-			tabs.selected = 1;
-			pages.selected = 1;
-    		ub.toggleClass('active');
-    		
+			ub.toggleClass('active');
 		}
 
-	    $scope.openFolder = function (arr, index, e){	    	
-	    	if(e !== undefined && $(e.target)[0].localName == 'paper-icon-button'){
-	    		return false;
-	    	}
+		$scope.SearchForm = {
+			active: false,
 
+			departamentos: $scope.departamentos,
+			departamento: null,
+
+			tipo_de_arquivos: [],
+			tipo_do_arquivo: null,
+
+			search: function () {
+				var self = this;
+
+				console.log(self.form);
+
+				$http({
+					url: "ajax/get.php?module=getArquivos",
+					method: "GET",
+					params: self.form
+				})
+				.success(function (response) {
+					$timeout(function () {
+
+						var exists = false;
+
+						for (var i = 0; i < $scope.bc.length; i++) {
+							var bc = $scope.bc[i];
+							if(bc.file_name == "Pesquisa") {
+								exists = true;
+								break;
+							}
+						}
+
+						if(!exists) $scope.bc.push({file_name: "Pesquisa"});
+
+						$scope.currentViewType = "file-table";
+						$scope.currentFolder = response;
+					});
+				});
+			},
+
+			getTiposDeArquivos: function (item) {
+				console.log('write');
+				var self = this;
+
+				$http.get("ajax/get.php?module=getTipoDeArquivos&departamento=" + item.id).success(function(data) {
+					$timeout(function() { self.tipo_de_arquivos = data; });
+				});
+			},
+
+			form: {
+				empresa: 1,
+
+				mes: null,
+				ano: 2016,
+
+				departamento: null,
+				tipo: null,
+
+				usuario: null,
+			},
+
+			reset: function () {
+				var self = this;
+
+				self.form = Object.create($scope.SearchForm.rawForm);
+				self.hide();
+			},
+
+			hide: function () {
+				var self = this;
+
+				self.active = false;
+			},
+
+			show: function (ev) {
+				var self = this;
+
+				self.active = true;
+
+			}
+		}
+
+		$scope.SearchForm.rawForm = Object.create($scope.SearchForm.form);
+
+		$scope.openFolder = function (folder) {
+
+			$timeout(function () {
+				$scope.bc.push(folder);
+			});
+
+			switch (folder.type) {
+				case "departamentos": 
+				$http.get("ajax/get.php?module=getTipoDeArquivos&departamento=" + folder.id).success(function(data) {
+					$scope.currentFolder = data;
+					$scope.tipo_de_arquivo = data;
+				});
+				break;
+				case "tipo_de_arquivo": 
+				$http.get("ajax/get.php?module=getArquivos&tipo_de_arquivo=" + folder.id + "&empresa=1").success(function(data) {
+					$scope.currentFolder = data;
+					$timeout(function () {
+						$scope.currentViewType = 'file-table';
+						console.log($scope.currentViewType);
+					})
+				});
+				break;
+			}
+		}
+
+	    /*$scope.openFolder = function (arr, index, e){	    	
 	    	var cmenu = $('.cmenu');
 	    	cmenu.fadeOut(150);
 
@@ -444,6 +558,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 	    	var em = $('.editMode');
 
 	    	if(em.hasClass('active')){
+	    		console.log("block 1");
 	    		return false;
 	    	}else{
 
@@ -451,7 +566,11 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 		    		d.removeClass('open');
 		    	}
 
-		    	if($scope.currentFolder == arr) return false;
+		    	if($scope.currentFolder.id == arr.id) {
+		    		return false;
+		    	}
+
+		    	console.log(arr);
 		    	
 
 		    	$timeout(function () {
@@ -465,14 +584,18 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			    		}
 			    	}
 
-		    		$scope.currentFolder = arr;
+			    	console.log($scope.currentFolder);
+
+    				$scope.currentFolder = arr;
+    				console.log($scope.currentFolder);
+
 		    		if(!exists) $scope.bc.push($scope.currentFolder);
 		    	});
 	    	}
-	    }	
+	    }	*/
 
 	    $scope.showInfo = function (arr){
-	    	$scope.$apply(function (){
+	    	$timeout(function (){
 	    		$scope.fileInfo = arr.info;
 	    	});
 	    	var d = $('.detail_viewer');
@@ -481,83 +604,82 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 	    }
 
 	    $scope.bytesToSize = function(bytes) {
-           if(bytes == 0) return '0 Byte';
-           var k = 1000;
-           var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-           var i = Math.floor(Math.log(bytes) / Math.log(k));
-           return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-        }
+	    	if(bytes == 0) return '0 Byte';
+	    	var k = 1000;
+	    	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	    	var i = Math.floor(Math.log(bytes) / Math.log(k));
+	    	return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+	    }
 
-        $scope.returnCurrentFolderObj = function (id) {
-    		for (var i = 0; i < $scope.currentFolder.children.length; i++) {
-    			if($scope.currentFolder.children[i].id == id){    				
-    				return {obj: $scope.currentFolder.children[i], iteration: i};    				
-    			}
-    		};
-        }
+	    $scope.returnCurrentFolderObj = function (id) {
+	    	for (var i = 0; i < $scope.currentFolder.length; i++) {
+	    		if($scope.currentFolder[i].id == id){    				
+	    			return {obj: $scope.currentFolder[i], iteration: i};    				
+	    		}
+	    	};
+	    }
 
-        $scope.rename = function (obj){
-        	var icon = $('.icon[data-id="'+obj.id+'"]');
-			var p_val = icon.find('p').html();
-			var p = icon.find('p');
-			var parent = p.parent();
-			var html = p.html();
-			var rename = $('.rename');
-			var filehash = (obj.file_hash) ? obj.file_hash : "";
+	    $scope.rename = function (obj){
+	    	var icon = $('.icon[data-id="'+obj.id+'"]');
+	    	var p_val = icon.find('p').html();
+	    	var p = icon.find('p');
+	    	var parent = p.parent();
+	    	var html = p.html();
+	    	var rename = $('.rename');
+	    	var filehash = (obj.file_hash) ? obj.file_hash : "";
 
-			p.hide();
-			rename.parent().find('p').show();
-			rename.remove();
-			p.parent().append('<textarea class="rename" type="text">'+html+'</textarea>');
-			var textarea = parent.find('textarea');
-			textarea.focus();
-			textarea.keydown(function(e) {
-				var key = e.keyCode || e.which;
-				if(key == 13){
-					textarea.trigger('focusout');
-				}else if(e.ctrlKey && key == 65){
-					textarea.select();
-				}
-			});
+	    	p.hide();
+	    	rename.parent().find('p').show();
+	    	rename.remove();
+	    	p.parent().append('<textarea class="rename" type="text">'+html+'</textarea>');
+	    	var textarea = parent.find('textarea');
+	    	textarea.focus();
+	    	textarea.keydown(function(e) {
+	    		var key = e.keyCode || e.which;
+	    		if(key == 13){
+	    			textarea.trigger('focusout');
+	    		}else if(e.ctrlKey && key == 65){
+	    			textarea.select();
+	    		}
+	    	});
 
-			parent.find('textarea').on( "focusout", function (){
-				var r = $('.rename').val();
-				p.html(r);
-				obj.file_name = r;
-				$('.rename').remove();
-				p.show();
-				if(textarea.val() == p_val) return;
+	    	parent.find('textarea').on( "focusout", function (){
+	    		var r = $('.rename').val();
+	    		p.html(r);
+	    		obj.file_name = r;
+	    		$('.rename').remove();
+	    		p.show();
+	    		if(textarea.val() == p_val) return;
 
-				$.ajax({
-					url: 'ajax/get.php?module=rename',
-					method: 'POST',
-					data: {
-						newname: r,
-						filehash: filehash,
-						id: obj.id
-					}
-				});
+	    		$.ajax({
+	    			url: 'ajax/get.php?module=rename',
+	    			method: 'POST',
+	    			data: {
+	    				newname: r,
+	    				filehash: filehash,
+	    				id: obj.id
+	    			}
+	    		});
 
-			});
-        }
+	    	});
+	    }
 
-        $scope.createFolder = function (id){
-        	$.ajax({
-        		url: 'ajax/get.php?module=newFolder',
-        		type: 'POST',
-        		data: {pid: $scope.currentFolder.id},
-        		success: function (data) {
-        			data = JSON.parse(data);
-        			data.children = [];
-        			$scope.$apply(function (){
-        				$scope.currentFolder.children.push(data);
-        			});
+	    $scope.createFolder = function (id){
+	    	$.ajax({
+	    		url: 'ajax/get.php?module=newFolder',
+	    		type: 'POST',
+	    		data: {pid: $scope.currentFolder.id},
+	    		success: function (data) {
+	    			data = JSON.parse(data);
+	    			$timeout(function (){
+	    				$scope.currentFolder.children.push(data);
+	    			});
 
-        			$scope.rename(data);
-        		}
-        	});
-        	
-        }
+	    			$scope.rename(data);
+	    		}
+	    	});
+
+	    }
 
 
         /*
@@ -573,9 +695,9 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          	setState: function (state, e) {
          		var self = this;
          		var target = $(e.target);
-	        	var icon = target.parents('.icon');
+         		var icon = target.parents('.icon');
 
-	        	icon.toggleClass('EditMode-checked');
+         		icon.toggleClass('EditMode-checked');
 
          		self.active = state;
 
@@ -584,21 +706,21 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          			return;
          		}
 
-	        	var id = icon.data('id');
-	        	var obj = $scope.returnCurrentFolderObj(id).obj;
-	        	
-	        	var index = icon.data('index');
-	        	var refIndex = self.selection.indexOf(index);
-	        	
-	        	if(refIndex == -1)
-	        		self.selection.push(index);
-	        	
-	        	else
-	        		self.selection.splice(refIndex, 1);        		
+         		var id = icon.data('id');
+         		var obj = $scope.returnCurrentFolderObj(id).obj;
 
-	        	if(self.selection.length == 0){
-	    			self.setState(false, e);
-	        	}
+         		var index = icon.data('index');
+         		var refIndex = self.selection.indexOf(index);
+
+         		if(refIndex == -1)
+         			self.selection.push(index);
+
+         		else
+         			self.selection.splice(refIndex, 1);        		
+
+         		if(self.selection.length == 0){
+         			self.setState(false, e);
+         		}
          	},
 
          	getState: function () {
@@ -620,78 +742,166 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          	selectAll: function () {
          		var self = this;
 
-		    	for (var i = 0; i < $scope.currentFolder.children.length; i++) {
-	    			selectedFiles.push($scope.currentFolder.children[i].id);
-	    			self.selection.push(i);
-		    	};
+         		for (var i = 0; i < $scope.currentFolder.children.length; i++) {
+         			selectedFiles.push($scope.currentFolder.children[i].id);
+         			self.selection.push(i);
+         		};
 
-		    	$('.icon').addClass('EditMode-checked');
+         		$('.icon').addClass('EditMode-checked');
          	},
 
          	deleteSelection: function () {
          		var self = this;
 
-		    	for (var i = 0; i < $scope.selectedIcons.length; i++) {
-	    			self.selection.push($scope.currentFolder.children[$scope.selectedIcons[i]].id);    			
-		    	};
+         		for (var i = 0; i < $scope.selectedIcons.length; i++) {
+         			self.selection.push($scope.currentFolder.children[$scope.selectedIcons[i]].id);    			
+         		};
 
-		    	for (var i = 0; i < self.selection.length; i++) { 
-		    		for (var u = 0; u < $scope.currentFolder.children.length; u++) {
-		    			if($scope.currentFolder.children[u].id == self.selection[i]){
-		    				$scope.currentFolder.children.splice(u, 1);	
-		    			}
-		    		};
-		    	};
-		    		    		
-		    	$.ajax({
-		    		url: 'ajax/get.php?module=trash',
-		    		method: 'POST',
-		    		data:{	    			
-		    			ids : JSON.stringify(self.selection),
-		    			deleted: 1
-		    		},
-		    		success: function(data){
-		    			self.reset();
-		    		}
-		    	})
+         		for (var i = 0; i < self.selection.length; i++) { 
+         			for (var u = 0; u < $scope.currentFolder.children.length; u++) {
+         				if($scope.currentFolder.children[u].id == self.selection[i]){
+         					$scope.currentFolder.children.splice(u, 1);	
+         				}
+         			};
+         		};
+
+         		$.ajax({
+         			url: 'ajax/get.php?module=trash',
+         			method: 'POST',
+         			data:{	    			
+         				ids : JSON.stringify(self.selection),
+         				deleted: 1
+         			},
+         			success: function(data){
+         				self.reset();
+         			}
+         		})
          	}
-        }
+         }
 
-        $scope.bcBack = function (){
-    		if ($scope.bc.length > 1){
-    			$scope.bc.pop();
-    			$scope.currentFolder = $scope.bc.slice(-1)[0];
-    		}
-        }
+         $scope.UploadBoard = {
+         	form: {
+         		file: null,
+         		type: null,
+         		file_name: null,
+         		year: null,
+         		month: null
+         	},
 
-        $scope.destinationFolder = 0;
-        $scope.selectFolder = function (id){
-        	$scope.destinationFolder = id;
-        }
+         	inProgress: {},
 
-        var resultChild;
-        $scope.findInTree = function(node, search){
-			for(var i=0; i<node.children.length; i++){
-				if(node.children.length){					
-					$scope.findInTree(node.children[i], search);
+         	updateInProgressItem: function (id, percentage) {
+         		this.inProgress[id].progress = percentage;
+         	},
 
-				}
-				if(node.children[i].id == search){
-					if(!resultChild){
-						resultChild = node.children[i];						
-					}
-					
-				}
-			}
-			return resultChild;
-			
-		}
+         	addInProgressItem: function (item) {
+         		this.inProgress[item.id] = item;
+         	},
 
-        $scope.moveToFolder = function (object){
+         	send: function () {
 
-        	function move (object, ids, error){
-        		if(error > 0) 
-        			return $log.debug('move function error: ' + error + ' errors');
+         		var input = $("#modal-upload").find('.fileAttach');
+         		var file = input[0].files[0];
+         		var self = this;
+
+         		var getPercentage = function (part, total){
+         			return parseFloat(((part * 100) / total).toFixed(2));
+         		}
+
+         		function doUpload () {
+         			var formData = new FormData();                
+         			formData.append('fileAttach', file);
+
+         			var hash = Math.random().toString(32).substring(2);
+         			var url = 'ajax/get.php?module=uploadFile&tipo=' + self.form.type + '&nome=' + self.form.file_name + '&referencia=' + self.form.month + '/' + self.form.year;
+
+         			self.addInProgressItem({id: hash, file_name: self.form.file_name, progress: 0});
+
+         			$('.tabs').tabs('select_tab', 'em_andamento');
+
+         			$.ajax({
+         				url: url,
+         				type: 'POST',
+         				data: formData,
+         				success: function (data) {                        
+         					console.log('arquivo enviado com sucesso');
+         				},
+         				cache: false,
+         				contentType: false,
+         				processData: false,
+         				xhr: function() {
+
+         					var myXhr = $.ajaxSettings.xhr();
+         					if (myXhr.upload) {
+         						myXhr.upload.addEventListener('progress', function (e) {
+         							self.updateInProgressItem(hash, getPercentage(e.loaded, e.total));
+
+         							if(e.loaded == e.total) {
+         								console.log('Arquivo enviado completamente');
+         								setTapListener();
+         							}
+
+         						}, false);
+         					}
+         					return myXhr;
+         				}
+         			});
+         		}
+
+         		if(file.size <= 50000000) {
+         			doUpload();
+         		}
+
+         		else
+         			alert("Tamanho maximo de 50mb excedido");
+         	}
+         }
+
+         $scope.bcBack = function (){
+         	if ($scope.bc.length > 1){
+
+         		$scope.bc.pop();
+
+         		if($scope.bc.length == 1) {
+         			$scope.currentFolder = $scope.departamentos;
+         			$scope.currentViewType = 'folder-list';
+         		}
+
+         		else if ($scope.bc.length == 2) {
+         			$scope.currentViewType = 'folder-list';
+         			$scope.currentFolder = $scope.tipo_de_arquivo;
+         		}
+         	}
+         }
+
+         $scope.destinationFolder = 0;
+         $scope.selectFolder = function (id){
+         	$scope.destinationFolder = id;
+         }
+
+         var resultChild;
+         $scope.findInTree = function(node, search){
+         	for(var i=0; i<node.children.length; i++){
+         		if(node.children.length){					
+         			$scope.findInTree(node.children[i], search);
+
+         		}
+         		if(node.children[i].id == search){
+         			if(!resultChild){
+         				resultChild = node.children[i];						
+         			}
+
+         		}
+         	}
+         	return resultChild;
+
+         }
+
+         $scope.moveToFolder = function (object){
+
+         	function move (object, ids, error){
+         		if(error > 0) 
+         			return $log.debug('move function error: ' + error + ' errors');
 
         		// se o objeto for setado, set a var ids como um array com o id do objeto, para o stringify do ajax
         		if(object != null) {
@@ -702,37 +912,37 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         		$scope.destinationFolder = ($scope.destinationFolder == null) ? "" : $scope.destinationFolder;
 
         		$.ajax({
-	        		url: 'ajax/get.php?module=move',
-	        		method: 'POST',
-	        		data: {
-	        			ids: JSON.stringify(ids),
-	        			pid: $scope.destinationFolder
-	        		},
-	        		success: function (data){
-	        			var obj = $scope.findInTree($scope.categories[0], $scope.destinationFolder);
+        			url: 'ajax/get.php?module=move',
+        			method: 'POST',
+        			data: {
+        				ids: JSON.stringify(ids),
+        				pid: $scope.destinationFolder
+        			},
+        			success: function (data){
+        				var obj = $scope.findInTree($scope.categories[0], $scope.destinationFolder);
 	        			// caso nao ache, ele volta undefined, e se o target for vazio
 	        			// entao o destino é a pasta home, is_root tem que ser 1 para a pasta aparecer
 	        			if($scope.destinationFolder == ""){ var obj = $scope.categories[0]}
 
 	        				for (var i = 0; i < selectedFiles.length; i++) {
 
-					    		for (var u = 0; u < $scope.currentFolder.children.length; u++) {
+	        					for (var u = 0; u < $scope.currentFolder.children.length; u++) {
 
-				    				if($scope.currentFolder.children[u].id == selectedFiles[i]){
+	        						if($scope.currentFolder.children[u].id == selectedFiles[i]){
 
-				    					$scope.$apply(function (){			    						
+	        							$scope.$apply(function (){			    						
 
-				    						$scope.currentFolder.children[u].parent = $scope.destinationFolder;
-				    						obj.children.push($scope.currentFolder.children[u]);
-				    						$scope.currentFolder.children.splice(u,1);
-				    					});
-				    				}
-				    			};
-					    	};
+	        								$scope.currentFolder.children[u].parent = $scope.destinationFolder;
+	        								obj.children.push($scope.currentFolder.children[u]);
+	        								$scope.currentFolder.children.splice(u,1);
+	        							});
+	        						}
+	        					};
+	        				};
 
-					    	$('.editMode').removeClass('active');
-	        		}
-	        	});	
+	        				$('.editMode').removeClass('active');
+	        			}
+	        		});	
         	}
 
         	if(object != undefined){
@@ -740,18 +950,18 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
         	}else{
         		var selectedFiles = [];
-		    	for (var i = 0; i < $scope.selectedIcons.length; i++) {
-	    			selectedFiles.push($scope.currentFolder.children[$scope.selectedIcons[i]].id);    			
-		    	};
+        		for (var i = 0; i < $scope.selectedIcons.length; i++) {
+        			selectedFiles.push($scope.currentFolder.children[$scope.selectedIcons[i]].id);    			
+        		};
 
-		    	var error = 0;
-		    	for (var i = 0; i < selectedFiles.length; i++) {
-		    		if(selectedFiles[i] == $scope.destinationFolder){
-		    			error++;
-		    		}
-		    	};
+        		var error = 0;
+        		for (var i = 0; i < selectedFiles.length; i++) {
+        			if(selectedFiles[i] == $scope.destinationFolder){
+        				error++;
+        			}
+        		};
 
-		    	move(null, selectedFiles, error);
+        		move(null, selectedFiles, error);
         	}
         }
 
@@ -760,23 +970,23 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         	var type, template;
 
         	if(typeStr.indexOf('video') > 0){
-				type = "video";
-			}else if(typeStr.indexOf('audio')  > 0){
-				type = "audio";
-			}else if(typeStr.indexOf('image')  > 0){
-				type = "image";
-			}
+        		type = "video";
+        	}else if(typeStr.indexOf('audio')  > 0){
+        		type = "audio";
+        	}else if(typeStr.indexOf('image')  > 0){
+        		type = "image";
+        	}
 
-    		if(typeStr.indexOf('video') > 0){
-				template = "<video autoplay controls src='ajax/get.php?module=getFile&video=1&hash=" + obj.file_hash + "'></video>";
-			}else if(typeStr.indexOf('audio')  > 0){
-				template = "<audio autoplay controls src='ajax/get.php?module=getFile&hash=" + obj.file_hash + "'></audio>";
-			}else if(typeStr.indexOf('image')  > 0){
-				template = "<img src='ajax/get.php?module=getFile&hash="+ obj.file_hash +"'>";
-			}
+        	if(typeStr.indexOf('video') > 0){
+        		template = "<video autoplay controls src='ajax/get.php?module=getFile&video=1&hash=" + obj.file_hash + "'></video>";
+        	}else if(typeStr.indexOf('audio')  > 0){
+        		template = "<audio autoplay controls src='ajax/get.php?module=getFile&hash=" + obj.file_hash + "'></audio>";
+        	}else if(typeStr.indexOf('image')  > 0){
+        		template = "<img src='ajax/get.php?module=getFile&hash="+ obj.file_hash +"'>";
+        	}
 
-			
-			return {type: type, template: template};
+
+        	return {type: type, template: template};
         }
 
         $scope.validFormat = function (obj) {
@@ -790,14 +1000,14 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         	}
         }
 
-        $scope.downloadFile = function (hash) {
-        	document.location = "ajax/get.php?module=getFile&hash=" + hash;
+        $scope.downloadFile = function (id) {
+        	document.location = "ajax/get.php?module=getFile&id=" + id;
         }
 
         $scope.toggleViewer = function (obj, condition){
-    		var v = $('.media_viewer');
-    		var am = $('.v-body').find('.align-middle');
-    		var time = 300;    		
+        	var v = $('.media_viewer');
+        	var am = $('.v-body').find('.align-middle');
+        	var time = 300;    		
         	if(obj == null){
 
         		if(!v.hasClass('open') || condition) {
@@ -805,7 +1015,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         			v.fadeIn(time);
         		}else{
         			v.removeClass('open');
-					v.fadeOut(time, function (){
+        			v.fadeOut(time, function (){
         				am.children().attr('src', '');
         				am.html("");
         			});
@@ -828,12 +1038,11 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         				var me = $(this);
         				if(me.height() > me.width()){
         					me.parent().css('height', '100%');
-        					me.css('height', '90%').css('width', '90%').css('max-width','100%').css('max-height','100%');
-        				}else{
-        					me.css('height', '90%').css('width', '90%').css('max-width','100%').css('max-height','100%');	
         				}
-        			})
-        				
+    					
+    					me.css({'height': '90%', 'width': '90%', 'max-width': '100%', 'max-height': '100%'});
+        			});
+
 
         			v.addClass('open');
         			v.fadeIn(time);
@@ -847,163 +1056,55 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         	}
         }
 
-        $scope.deleteFromStructure = function (id){
-        	for (var i = 0; i < $scope.currentFolder.children.length; i++) {
-    			if($scope.currentFolder.children[i].id == id){
-    				$scope.$apply(function (){
-    					$.ajax({
-				    		url: 'ajax/get.php?module=trash',
-				    		method: 'POST',
-				    		data:{	    			
-				    			ids : JSON.stringify([$scope.currentFolder.children[i].id]),
-				    			deleted: 1
-				    		},
-				    		success: function(data){
-				    			$('.editMode').removeClass('active');
-				    			$scope.selectedIcons = [];
-				    		}
-				    	});
-    					$scope.currentFolder.children.splice(i, 1);
-    				});
-    			}
-    		};
-    		
+        $scope.deleteFromStructure = function (item) {
+
+        	$.ajax({
+        		url: 'ajax/get.php?module=trash',
+        		method: 'POST',
+
+        		data: {
+        			ids : JSON.stringify([item.id]),
+        			deleted: 1
+        		},
+
+        		success: function(data){
+
+        			$timeout(function (){
+        				$scope.selectedIcons = [];
+
+        				for (var i = 0; i < $scope.currentFolder.children.length; i++) {
+        					var folderItem = $scope.currentFolder.children[i];
+
+        					if(folderItem.id == item.id) {
+        						$scope.currentFolder.children.splice(i, 1);
+        						break;
+        					}
+        				}
+        			});
+
+        			$('.editMode').removeClass('active');
+        		}
+        	});
         }
 
         $scope.closeDetails = function (){
         	$('.detail_viewer').removeClass('opened');
         }
 
-        $scope.uploadFile = function (e, hash) {
-	        var parent = $(e.target).parents('.upload-container');
-	        var body = $(e.target).parents('.fileinput');
-	        var alert = body.find('.alert');
-	        var form = parent.find('form');
-	        var input = parent.find('.fileAttach');
-	        var file = input[0].files[0];
-	        var returnFileData = "";
-
-	        var pid = $scope.currentFolder.id;
-	         
-	        function getPercentage (part, total){
-	            return parseFloat(((part * 100) / total).toFixed(2));
-	        }
-
-	        function doUpload (pid, isRoot) {
-				var formData = new FormData();                
-				formData.append('fileAttach', file);
-
-				var randNum = Math.floor((Math.random() * 1000) +1);
-
-				var uplist = $('tbody');
-
-				var tpl = "<tr>\
-								<td>" + file.name + "</td>\
-								<td>\
-									<div class=\"progress\" id='upload_" + randNum + "''>\
-										<div class=\"progress-bar\" style=\"width: 0%;\">\
-									        <span class=\"sr-only\">0% Completo</span>\
-									    </div>\
-									</div>\
-								</td>\
-								<td>\
-									<paper-button raised>CANCELAR</paper-button>\
-								</td>\
-							</tr>";
-
-				$(uplist).append(tpl);
-
-				pages.selected = 0;
-				tabs.selected = 0;
-
-				var isRoot = (isRoot == undefined) ? isRoot = "0" : isRoot = "1";
-
-				$.ajax({
-				    url: 'ajax/get.php?module=uploadFile&pid='+ ((pid) ? pid : -1) + '&ir=' +isRoot,
-				    type: 'POST',
-				    data: formData,
-				    success: function (data) {                        
-				        data = JSON.parse(data);
-				        if(data){
-				          $scope.returnFileData = data;
-				          $scope.$apply(function (){
-				          	$scope.currentFolder.children.push({
-				          		id: data.id,
-				          		file_name: file.name,
-				          		parent: (pid) ? pid : -1,
-				          		is_root: (isRoot) ? true : false,
-				          		is_folder: 0,
-				          		deleted: 0,
-				          		children: [],
-				          		file_type: file.type,
-				          		file_hash: data.hash,
-				          		info: data.info
-				          	});
-				      	  });
-
-				        }
-				    },
-				    cache: false,
-				    contentType: false,
-				    processData: false,
-				    xhr: function() {  // Custom XMLHttpRequest
-				    	
-
-				        var myXhr = $.ajaxSettings.xhr();
-				        if (myXhr.upload) { // Avalia se tem suporte a propriedade upload
-				            myXhr.upload.addEventListener('progress', function (e) {
-				                var upload = $('#upload_' + randNum).find('.progress-bar');
-				                upload.css('width', getPercentage(e.loaded, e.total) + "%");
-
-				                if(e.loaded == e.total){
-				                	uplist.find('#upload_' + randNum).parents('tr').find('paper-button').remove();   
-				                	uplist.find('#upload_' + randNum).parents('tr').append('<li>x</li>');
-				                	setTapListener();
-				                }
-
-				            }, false);
-				        }
-				    return myXhr;
-				    }
-				});
-	        }
-
-	        if(file.size <= 50000000 && pid != null){
-	            body.find('.alert').html('Enviando...').show();
-	            setTimeout(function(){ body.find('.alert').hide()}, 5000);
-
-	            doUpload(pid);
-
-	        }else{
-	          	var alert = parent.find('.alert');
-	            alert.toggleClass('warning');
-	            if(pid != null){
-
-	            	alert.html('Tamanho de arquivo excedido, máximo de 50mb').show();
-	            	alert.click(function (){ alert.hide(); })
-	            }else{
-	            	//alert.html('Não é possivel enviar um arquivo para a raiz do disco').show();
-	            	//alert.click(function (){ parent.find('.alert').hide(); })
-	            	doUpload(pid, 1);
-	            }
-	            setTimeout(function(){ parent.find('.alert').hide()}, 5000);
-            }
-        }
-
         $scope.breadcrumbs = function () {
-        	
-
 
         	var crumb = $scope.bc.reduce(function (crumb, item) {
-        		return crumb += item.file_name + "/";
+        		if(item) {
+        			return crumb += item.file_name + "/";
+        		}
         	}, "");
-
 
 
         	return crumb;
         }
 
         $scope.viewType = (!device) ? "view-module" : "view-list";
+
         $scope.changeView = function (){
         	var self = $(this);
         	var view = $('.shortcuts');
@@ -1017,103 +1118,137 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         }
 
         $scope.closeUb = function (e) {
-			$(e.target).parents('.upload_board').removeClass('active');
-		}
+        	$(e.target).parents('.upload_board').removeClass('active');
+        }
 
-		var dialog = $('paper-action-dialog');
-		dialog.on('core-overlay-close-completed', function (){
-			$(this).attr('opened', false);
-		});
+        var dialog = $('paper-action-dialog');
+        dialog.on('core-overlay-close-completed', function (){
+        	$(this).attr('opened', false);
+        });
 
-		$scope.toggleDialog = function (condition, callback){
-			var o = dialog.attr('opened');
+        $scope.toggleDialog = function (condition, callback){
+        	var o = dialog.attr('opened');
 
-			if(o == true){
-				dialog.attr('opened', false);
-			}else{
-				dialog.attr('opened', true);
-			}
+        	if(o == true){
+        		dialog.attr('opened', false);
+        	}else{
+        		dialog.attr('opened', true);
+        	}
 
-			if(callback){
-				callback();
-			}else{
-				$('[affirmative]').on('click', function (e){
-					$scope.moveToFolder();
-					$(this).off();
-				})
-			}
+        	if(callback){
+        		callback();
+        	}else{
+        		$('[affirmative]').on('click', function (e){
+        			$scope.moveToFolder();
+        			$(this).off();
+        		})
+        	}
 
-		}
+        }
 
-		$scope.ContextMenu = {
-			dom: null,
-			id: null,
-			hash: null,
-			revert: true,
-			targetDom: null,
-			object: null,
-			threshold: 40,
+        $scope.ContextMenu = {
+        	dom: null,
+        	id: null,
+        	hash: null,
+        	revert: true,
+        	object: null,
+        	threshold: 40,
 
-			create: function (e, target) {
-				this.targetDom = target;
-				this.id = target.data('id');
+        	create: function (e) {
 
-				var object = $scope.returnCurrentFolderObj(this.id).obj;
-				this.object = object;
-				this.hash = object.file_hash;
+        		var target = $(e.target);
+        		target = (target.data("id")) ? target : target.parents('tr');
+        		var id = target.data('id');
+
+        		console.log(id, target);
+
+        		if(!id) return;
+
+        		this.id = id;
+
+        		var folderItem = $scope.returnCurrentFolderObj(this.id);
+        		var object;
+
+        		if(folderItem) {
+        			object = folderItem.obj;
+        		}
+
+        		else return;
+
+        		this.object = object;
+        		this.hash = object.file_hash;
 
 				//if(object.is_folder == 1) object.info = {menuOptions: null};
 
-				var info = object.info;
+				var defaultOptions = object.raw.menuOptions;
 
-				if(info.menuOptions){
-					var defaultOptions = info.menuOptions;
+				console.log(defaultOptions);
 
-					var createListItem = function (name, command) {
-						return '<li class="list-item" data-command="'+ command +'" ng-click="ContextMenu.chooseOption($event)"><span fit>' + name + '</span></li>'
+				if(defaultOptions){
+					
+					if(device) {
+						$mdBottomSheet.show({
+							templateUrl: "app/templates/bottom-sheet.html",
+							controller: function ($scope, items, object) {
+								$scope.items = items;
+								$scope.object = object;
+							},
+
+							locals: {
+								items: defaultOptions,
+								object: object
+							}
+						});
 					}
 
-					var options = {
-						abrir: createListItem("Abrir", "abrir"),
-						renomear: createListItem("Renomear", "renomear"),
-						mover: createListItem("Mover para...", "mover"),
-						remover: createListItem("Remover", "remover"),
-						compartilhar: createListItem("Compartilhar", "compartilhar"),
-						download: createListItem("Download", "download"),
-						link: createListItem("Link", "link"),
-						detalhes: createListItem("Detalhes", "detalhes"),
-						favoritar: createListItem("Favoritar", "favoritar")
-					};
-
-					var optionsString = "";
-
-					for (var i = 0; i < defaultOptions.length; i++) {
-						if(options[defaultOptions[i]]) {
-							optionsString += options[defaultOptions[i]];
+					else {
+						var createListItem = function (name, command) {
+							return '<li class="list-item" data-command="'+ command +'" ng-click="ContextMenu.chooseOption($event)"><span fit>' + name + '</span></li>'
 						}
-					};
 
-					var template = '\
-						<div class="ContextMenu '+ (device ? "device" : "desktop") +'">\
-							<div class="cm-overlay"></div>\
-							<div class="cm-container down" draggable="'+ (device ? "true" : "false") +'">\
-								<ul class="cm-list">'+ optionsString +'</ul>\
-							</div>\
+						var options = {
+							abrir: createListItem("Abrir", "abrir"),
+							renomear: createListItem("Renomear", "renomear"),
+							mover: createListItem("Mover para...", "mover"),
+							remover: createListItem("Remover", "remover"),
+							compartilhar: createListItem("Compartilhar", "compartilhar"),
+							download: createListItem("Download", "download"),
+							link: createListItem("Link", "link"),
+							detalhes: createListItem("Detalhes", "detalhes"),
+							favoritar: createListItem("Favoritar", "favoritar")
+						};
+
+						var optionsString = "";
+
+						for (var i = 0; i < defaultOptions.length; i++) {
+							if(options[defaultOptions[i]]) {
+								optionsString += options[defaultOptions[i]];
+							}
+						};
+
+						var template = '\
+						<div class="ContextMenu desktop">\
+						<div class="cm-overlay"></div>\
+						<div class="cm-container down" draggable="false">\
+						<ul class="cm-list">'+ optionsString +'</ul>\
 						</div>\
-					';
+						</div>\
+						';
 
-					template = $compile($(template))($scope);
+						template = $compile($(template))($scope);
 
-					$(template).appendTo($('body'));
+						$(template).appendTo($('body'));
 
-					this.dom = $('.ContextMenu');
+						this.dom = $('.ContextMenu');
 
-					this.dom.data('isDevice', device);
+						this.dom.data('isDevice', device);
 
-					var self = this;
-					$timeout(function (){
-						self.setListeners(e);
-					});
+						var self = this;
+						$timeout(function (){
+							self.setListeners(e);
+						});
+					}
+
 
 				}else{
 					return false;
@@ -1139,24 +1274,24 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 					var s = $('.shortcuts');
 					var a = $('aside');
-		    		var sw = s.width() + a.width();
-		    		var sh = s.height();
+					var sw = s.width() + a.width();
+					var sh = s.height();
 
-		    		var cmenu = this.dom.find('.cm-list');
-		    		var cw = cmenu.width();
-		    		var ch = cmenu.children().length * 48;
+					var cmenu = this.dom.find('.cm-list');
+					var cw = cmenu.width();
+					var ch = cmenu.children().length * 48;
 
 					var x = e.pageX;
-		    		var y = e.pageY;
+					var y = e.pageY;
 
-		    		function calc (x, y) {
-		    			if(ch >= 300) ch = 300;
-		    			if(x + cw > sw){x = x - cw;}
-		        		if(y + ch > sh ){y = y - ch;}
-		        		return {x: x, y: y}
-		    		}
+					function calc (x, y) {
+						if(ch >= 300) ch = 300;
+						if(x + cw > sw){x = x - cw;}
+						if(y + ch > sh ){y = y - ch;}
+						return {x: x, y: y}
+					}
 
-		    		var fc = calc (x, y);
+					var fc = calc (x, y);
 
 					c.css({top: fc.y, left: fc.x});
 					c.fadeIn(150);
@@ -1167,17 +1302,8 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 			hide: function () {
 				var self = this;
-				var c = this.dom.find('.cm-container');
-				var o = this.dom.find('.cm-overlay');
 
-				if(device){
-					c.addClass('down');
-					o.fadeOut(400, function() {
-						self.dom.hide();
-						self.dom.off();
-						self.dom.remove();
-					});
-				}else{
+				if(!device){
 					self.dom.fadeOut(50, function (){
 						self.dom.off();
 						self.dom.remove();
@@ -1185,184 +1311,126 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 				}
 			},
 
-			chooseOption: function (e) {
+			chooseOption: function (e, object) {
 				var self = this;
 				var target = $(e.target);
-				var option = target.data("command");
-				var obj = self.object;
+				var obj = (object) ? object : self.object;
+				var option;
 
-				self.hide();
-		
+				if(device) {
+					option = (target.is("button")) ? target.data("command") : target.parents('button').data("command");
+					$mdBottomSheet.hide();
+				}
+
+				else {
+					option = (target.is('span')) ? target.parents('li').data("command") : target.data("command");
+					self.hide();
+				}
+
 	        	switch (option){ // SINGLE ACTION
 	        		case "abrir":
-	        			var types = ['.jpeg','.jpg','.gif','.png', '.jpeg','.bmp', '.mp4', '.3gp', '.wav', '.mp3'];
-	  					var typeStr;
+	        		var types = ['.jpeg','.jpg','.gif','.png', '.jpeg','.bmp', '.mp4', '.3gp', '.wav', '.mp3'];
+	        		var typeStr;
 
-	        			var type = -1;
+	        		var type = -1;
 
-	        			if(obj.info.type){
-		        			var t = obj.info.type;
-		        			var nt = t.split(' ');
-		        			typeStr = nt[1];
-		        			type = types.indexOf(nt[0]);
-	        			}else{
-	        				console.log('this obj dont have info');
-	        			}
+	        		if(obj.info.type){
+	        			var t = obj.info.type;
+	        			var nt = t.split(' ');
+	        			typeStr = nt[1];
+	        			type = types.indexOf(nt[0]);
+	        		}
 
-		        		if(obj.is_folder == 1){
-							$scope.openFolder(obj);
-		    			}else if(obj.is_folder == 0 && type != -1){
-		    				$scope.validFormat(obj);
-		    			}
+	        		if(obj.is_folder == 1){
+	        			$scope.openFolder(obj);
+	        		}else if(obj.is_folder == 0 && type != -1){
+	        			$scope.validFormat(obj);
+	        		}
 
-	        			break;
+	        		break;
 
-	    			case "remover":
-						$scope.deleteFromStructure(self.id);
-	        			break;
+	        		case "remover":
+	        		$scope.deleteFromStructure(obj);
+	        		break;
 
 	        		case "detalhes":
-						if(obj.is_folder == 0 || obj.is_folder == 1){
-							$scope.showInfo(obj);
-						}
-	        			break;
+	        		if(obj.is_folder == 0 || obj.is_folder == 1){
+	        			$scope.showInfo(obj);
+	        		}
+	        		break;
 
-        			case "renomear":
+	        		case "renomear":
 
-						$scope.rename(self.object);
-	        			break;
+	        		$scope.rename(self.object);
+	        		break;
 
-        			case "enviar_arquivo":
-						tabs.selected = 1;
-		    			pages.selected = 1;
-			    		ub.addClass('active');
-	        			break;
+	        		case "enviar_arquivo":
+	        		tabs.selected = 1;
+	        		pages.selected = 1;
+	        		ub.addClass('active');
+	        		break;
 
-        			case "nova_pasta":
-						$scope.createFolder(self.id);
-	        			break;
+	        		case "nova_pasta":
+	        		$scope.createFolder(self.id);
+	        		break;
 
-        			case "download":
-						$scope.downloadFile(self.hash);
-	        			break;
+	        		case "download":
+	        		$scope.downloadFile(self.hash);
+	        		break;
 
-        			case "mover":
-        				$scope.toggleDialog(null, function (){
-        					$('[affirmative]').on('click', function (e){
-        						e.preventDefault();
-        						$scope.moveToFolder(obj);
-        						$(this).off();
-        					})
-        				});
-	        			break;
+	        		case "mover":
+	        		$scope.toggleDialog(null, function (){
+	        			$('[affirmative]').on('click', function (e){
+	        				e.preventDefault();
+	        				$scope.moveToFolder(obj);
+	        				$(this).off();
+	        			})
+	        		});
+	        		break;
 
 	        		default:
-        			break;
+	        		console.log("opção desconhecido " + option);
+	        		break;
 	        	}
-			},
+	        },
 
-			setListeners: function (event) {
+	        setListeners: function (event) {
+	        	var self = this;
 
-				var c = this.dom.find('.cm-container');
-				var c_height = c.find('.cm-list').height() + 16;
-				var o = this.dom.find('.cm-overlay');
-				var wh = $(window).height();
+	        	self.dom.on('contextmenu', function(e){
+	        		e.preventDefault();
+	        		self.hide();
+	        	});
 
-
-				function getPercentage (e) {
-					return wh * (e / 100);
-				}
-
-				var self = this;
-
-				var threshold = this.threshold;
-
-				o.on('click', function (){
-					self.hide();
-				});
-
-				var dif = (wh - c_height);
-
-				this.dif = dif;
-				c.css('top', this.dif);
-				
-				if(device){
-					c.draggable({
-						axis: "y",
-						cursor: "default",
-						revert: function (){
-							return self.revert;
-						},
-
-						start: function (){
-							self.revert = true;
-						},
-
-						drag: function (e, ui){
-							var pos = ui.position.top;
-
-							if(pos < self.dif){
-								ui.position.top = self.dif;
-							}
-
-							if(pos > getPercentage(threshold) ){
-								self.revert = false;
-							}
-						},
-
-						stop: function (e, ui){
-							var pos = ui.position.top;
-
-							if(pos > getPercentage(threshold)){
-								self.revert = false;
-								self.hide();
-							}
-
-							if(pos <= getPercentage(threshold)){
-								self.revert = true;
-							}
-						}
-					});	
-				}
-
-				self.dom.on('contextmenu', function(e){
-					e.preventDefault();
-					self.hide();
-				});
-
-				
-				this.show(event);
-			}
-		}
+	        	self.dom.find('.cm-overlay').on("click", function () {
+	        		self.hide();
+	        	})
 
 
-		$('.shortcuts').on('contextmenu', '.icon', function(e){
-			e.preventDefault();
-			var target = $(e.target);
-			var target = (target.data('id')) ? target : target.parents('.icon');
-			$scope.ContextMenu.create(e, target);
-		});
+	        	this.show(event);
+	        }
+	    }
 
 		// DRAWER OR SIDENAV (AMD)
 		$scope.toggleLeft = buildToggler('left');
-	    $scope.toggleRight = buildToggler('right');
+		$scope.toggleRight = buildToggler('right');
 
-	    function buildToggler(navID) {
-	      var debounceFn =  $mdUtil.debounce(function(){
-	            $mdSidenav(navID)
-	              .toggle()
-	              .then(function () {
-	                $log.debug("toggle " + navID + " is done");
-	                $('content').addClass('opened');
-	 		        $('md-backdrop').on('click', function (){	
-				        $('content').removeClass('opened');
-				    });
-	              });
-	          },0);
-	      return debounceFn;
-	    }
+		function buildToggler(navID) {
+			var debounceFn =  $mdUtil.debounce(function(){
+				$mdSidenav(navID)
+				.toggle()
+				.then(function () {
+					$log.debug("toggle " + navID + " is done");
+					$('content').addClass('opened');
+					$('md-backdrop').on('click', function (){	
+						$('content').removeClass('opened');
+					});
+				});
+			},0);
+			return debounceFn;
+		}
 
-	    $scope.Sidenav = $mdSidenav('left');
+		$scope.Sidenav = $mdSidenav('left');
 
 	    // DRAWER FUNCTIONS
 	    // load user photo

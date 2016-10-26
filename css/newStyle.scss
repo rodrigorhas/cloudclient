@@ -33,55 +33,45 @@ html, body {
 }
 
 .searchForm {
-	transition: all .3s;
-	transform: translateY(-100%);
-	opacity: 0;
-	width: 100%;	
-	height: 64px;
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.15);
-	background-color: rgb(66, 133, 244);
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin: 0;
-	z-index: 2;
+    transition: all .3s;
+    transform: translateY(-100%);
+    opacity: 0;
+    background-color: #f2f2f2; /*#4285f4*/
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    display: none;
+    z-index: 10;
 
 	&.active {
 		transform: translateY(0);
 		opacity: 1;
+		display: block;
 	}
 
-	[icon="close"]{
+	.action-close {
 		float: right;
-		position: relative;
-		top: 10px;
-		right: 16px;
+		position: absolute;
+		top: 8px;
+		right: 32px;
 
-		& /deep/ #icon {
-			color: white;
-		}
-	}
-
-	input {
-		border: none;
-		background-color: rgb(248,248,248);
-		outline: none;
-		margin: 8px 128px;
-		padding: 0 12px;
-		border-radius: 2px;
-		font-size: 15px;
-
-		&.min {
-			min-width: 250px;
-			margin: 8px;
-		}
+		i { color: #333; }
 	}
 }
 
 nav {
 	background-color: cornflowerblue;
 	position: fixed;
-	z-index: 10;
+	z-index: 2;
+
+	@media screen and (max-width: 640px) {
+		button i {
+			top: 0;
+		}
+	}
 
 	.nav-wrapper {
 		padding: 0 16px;
@@ -94,6 +84,12 @@ nav {
 
 	.btn {
 		padding: 0 1rem;
+
+		@media screen and (min-width: 640px) {
+			i {
+				top: -14px;
+			}
+		}
 
 		i {
 			color: white;
@@ -109,7 +105,7 @@ nav {
 
 	i {
 		position: relative;
-		top: -14px;
+		top: -10px;
 		font-size: 1.3rem;
 	}
 }
@@ -262,12 +258,11 @@ aside {
 	display: block;
 	width: 100%;
 	height: 100%;
-	margin-left: 256px;
-	transition: margin .3s;
 	padding-top: 64px;
 
 	@media (max-width: 640px) {
 		margin-left: 0;
+		padding-top: 58px;
 	}
 
 	.shortcuts {
@@ -328,11 +323,6 @@ aside {
 
 				@media (max-width: 640px) {
 					padding: 10px;
-				}
-
-				icon i {
-					font-size: 32px;
-					color: #666;
 				}
 			}
 
@@ -432,6 +422,10 @@ aside {
 				 		font-size: 22px;
 				  		position: relative;
 					  	top: -4px;
+
+				    	&.zmdi-folder {
+					  		color: #FFC107;
+				    	}
 				    }
 				}
 
@@ -636,7 +630,7 @@ html /deep/ paper-action-dialog::shadow #scroller {
 	padding: 0;
 	margin:   0;
 	background-color: rgba(0,0,0,0.4);
-	z-index: 3;
+	z-index: 10;
 
 	.v-container {
 		position: relative;
@@ -650,20 +644,25 @@ html /deep/ paper-action-dialog::shadow #scroller {
 		height: 100%;
 		background-color: rgba(30, 30, 30, 0.90);
 		
-		.paper-button-menu {
+		.menu {
 			background-color: rgb(18, 18, 18);
 			position: absolute;
 			right: 0;
 			top: 0;
 			left: 0;
-			padding: 8px 12px 4px 12px;
+			padding: 16px;
 			text-align: right;
 			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+			height: 64px;
 
-			paper-icon-button {
+			button {
 				color: white;
 				z-index: 4;
 				display: inline-block;
+
+				i {
+					top: 0;
+				}
 			}
 		}
 
@@ -679,7 +678,7 @@ html /deep/ paper-action-dialog::shadow #scroller {
 			width: 100%;
 			position: relative;
 			text-align: center;
-			top: 50%;
+			top: 55%;
 			transform: translateY(-50%);
 
 			* {
@@ -713,6 +712,7 @@ html /deep/ paper-action-dialog::shadow #scroller {
 	input[type=text],
 	input[type=password] {
 
+		width: auto;
 		margin: 0;
 		text-align: center;
 
@@ -735,17 +735,14 @@ html /deep/ paper-action-dialog::shadow #scroller {
 			&.off {
 				h5 {
 					opacity: 0;
-					visibility: hidden;
 				}
 
 				.logo {
 					opacity: 0;
-					visibility: hidden;
 				}
 
 				.form {
 					opacity: 1;
-					visibility: visible;
 					transform: translateY(-20%);
 				}
 
@@ -817,7 +814,6 @@ html /deep/ paper-action-dialog::shadow #scroller {
 		}
 
 		.form {
-			visibility: hidden;
 			opacity: 0;
 			transform: translateY(20%);
 			transition: opacity .4s, transform .6s, visibility .4s;
@@ -825,7 +821,6 @@ html /deep/ paper-action-dialog::shadow #scroller {
 		}
 
 		.block {
-			visibility: hidden;
 			margin-top: 50%;
 			opacity: 0;
 			transform: translateY(50%);
@@ -901,11 +896,7 @@ html /deep/ paper-action-dialog::shadow #scroller {
 					padding: 8px 0;
 
 					@media (max-width: 640px) {
-						padding: 6px 0;
-					}
-
-					&:hover {
-						background-color: #f2f2f2;
+						padding: 16px;
 					}
 
 					core-icon {
@@ -1053,7 +1044,9 @@ html /deep/ paper-action-dialog::shadow #scroller {
 	    transform: scale(1) rotate(360deg);
 	    -webkit-transition: -webkit-transform 150ms cubic-bezier(.4, 0, 1, 1);
 	    transition: transform 150ms cubic-bezier(.4, 0, 1, 1);
-	    z-index: 2;
+	    z-index: 1;
+	    color: white;
+	    font-size: 18px;
 
 	    .second-icon {
 		    opacity: 0;
@@ -1267,6 +1260,13 @@ md-sidenav {
 	transform: translateY(100%);
 	transition: .4s transform cubic-bezier(0.19, 1, 0.22, 1);
 
+	button {
+		padding: 0 1rem;
+		i {
+			top: 0;
+		}
+	}
+
 	.dv-close {
 		display: block;
 		width: 100%;
@@ -1293,4 +1293,43 @@ md-backdrop {
 
 .tooltip-arrow {
 	display: none;
+}
+
+
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.clearfix {
+    *zoom: 1;
+}
+
+.modal {
+	z-index: 10 !important;
+}
+
+.lean-overlay {
+	z-index: 9 !important;
+}
+
+md-input-container {
+	margin: 18px 0 0;
+
+	input {
+		margin-bottom: 0;
+	}
+}
+
+table tbody tr:hover {
+	background-color: #f2f2f2;
 }
