@@ -20,28 +20,19 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 		$timeout(function() { $scope.all_file_types = data; });
 	});
 
-	$timeout(function () {
-		$(".modal-trigger").leanModal();
-		$('select').material_select();
-	})
+	function initializeComponents () {
+		$timeout(function () {
+			$(".modal-trigger").leanModal();
+			$('select').material_select();
+			$('[data-tooltip]').tooltip({position: 'left', delay: 50});
+		});
+	}
 
-	$('[data-tooltip]').tooltip({position: 'left', delay: 50});
-
-	var tabs = document.querySelector('paper-tabs');
-	var pages = document.querySelector('core-pages');
-
-	
 	var device;
 	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
 		device = true;
 	}else{
 		device = false;
-	}
-
-	if(tabs) {
-		tabs.addEventListener('core-select',function(){
-			pages.selected = tabs.selected;
-		});
 	}
 
 	//fullscreen
@@ -84,10 +75,8 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
             	if (wscript != null) {
             		wscript.SendKeys("{F11}");
             	}
-
             }
         }
-
 
         var isInFullScreen = (document.fullScreenElement && document.fullScreenElement !== null) ||  (document.mozFullScreen || document.webkitIsFullScreen);
         
@@ -103,8 +92,6 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 	//end fullscreen
 
 	$scope.currentFolder = [];
-	$scope.fileInfo = [];
-	$scope.editModeArr = [];
 	$scope.bc = [];
 	$scope.bcCurr = 0;
 	$scope.visible = false;
@@ -132,107 +119,11 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			})
 		}
 
-		// CHECK USER SESSION
-
-		(function () {
-			$.ajax({
-				url: 'ajax/get.php?module=checkUserSession',
-				method: 'POST',
-				success: function (data){
-					if(data) {
-						$timeout(function (){
-							$('.loading').fadeOut(400, function(){
-								$(this).remove();
-							})
-						});
-						$scope.getTree();
-					}else{
-						$('.login').show();
-					}
-				}
-			});
-		})();
-
 		$scope.ws = $(window).width();
 
 		$(window).resize(function(e) {
 			$scope.ws = $(this).width();
 		});
-
-		// LOGIN FUNCTIONS 
-
-		$(function () {
-			var l = $('.login');
-			var ci = l.find('.center.in');
-			var co = l.find('.center.off');
-			var h = l.find('h5');
-
-			var i = co.find('[ng-model="uname"]');
-
-			$timeout(function () {
-				co.addClass('min');
-
-				$timeout(function () {
-					i.focus();
-				}, 1000);
-			}, 500);
-
-
-			/*if(!ci.hasClass('min')){
-				co.toggleClass('min');
-			}
-
-			else {
-				co.toggleClass('min');
-
-				if(co.find('input').val() != ""){
-					co.find('img').addClass('show');
-				}
-			}*/
-		});
-
-		$scope.authUser = function (callback){
-
-			var uname = $('[ng-model="uname"]');
-			var upass = $('[ng-model="upass"]');
-
-			$.ajax({
-				url: 'ajax/get.php?module=authUser',
-				method: 'POST',
-				
-				data: {u: uname.val() , p: upass.val() },
-				success: function (data) {
-					if(data != "404" && data != "1"){
-						if(callback) callback();
-					}else if (data == "404"){
-						navigator.vibrate(100);
-						console.log("Senha Invalida");
-					}
-				}
-			});	
-		}
-
-		$scope.logConfirm = function (){
-			var l = $('.login');
-			var ld = $('.loading');
-			var h = l.find('h5');
-			var upass = $('[ng-model="upass"]');
-			if(upass.val() != "" && upass.val() != undefined) {
-				$scope.authUser(function (){
-					h.hide();
-					$timeout(function (){
-						$scope.loginHide(function () {
-							l.fadeOut(250);
-							ld.fadeOut(250);
-							$scope.getTree();
-						}, true);
-					})
-				});
-			}else {
-				alert("Insira uma senha valida")
-			}
-
-		}
 
 		$scope.loginHide = function (callback, opt){
 			var l = $('.login');
@@ -261,7 +152,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 		}
 
-		var typingTimer;                
+		/*var typingTimer;                
 		var doneTypingInterval = 1000;
 		var usel = $('#username');
 		var pssel = $('[ng-model="upass"');
@@ -281,46 +172,10 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			var key = e.keyCode || e.which;
 	   	//if(key == 9) e.preventDefault(); return;
 	   	clearTimeout(typingTimer);
-	   });
-
-		$scope.doneTyping = function () {
-			$sb = usel.val();
-			if($sb !== "" && $sb !== undefined && $sb !== null){
-				$.ajax({
-					url: 'ajax/get.php?module=getUserImg',
-					method: 'POST',
-					data: {u: $sb},
-					success: function (data){
-						if(data != "404"){
-							$scope.userImg = data;
-							localStorage.setItem('cc-u-p', data);
-							var u = $('.userPhoto');
-							u.attr('src', data);
-							u.addClass('show');
-
-							var l = $('.login');
-							var ci = l.find('.center.in');
-							var co = l.find('.center.off');
-							var p = l.find('paper-ripple');
-							var h = l.find('h5');
-							var pt2 = co.find('.part2');
-
-							pt2.removeClass('hide');
-							pt2.find('paper-input').focus();
-
-						}
-					}
-				});
-
-			}
-		};
+	   });*/
 
 		$scope.emptySearchbar = function () {
 			usel.val('');
-		}
-
-		function applyRowGrid () {
-			$(".shortcuts.view-module").rowGrid({itemSelector: ".icon", minMargin: 36, maxMargin: 50, firstItemClass: "first-item"});
 		}
 
 		$scope.onRepeatLast = function (callback){
@@ -329,7 +184,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			});
 		}
 
-		$scope.getTree = function () {
+		$scope.getDepartamentos = function () {
 
 			$http.get("ajax/get.php?module=getDepartamentos").success(function (data) {
 				$scope.currentFolder = data;
@@ -340,13 +195,6 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 			$timeout(function () {
 				$scope.currentViewType = "folder-list";
 			});
-
-			/*$http.get('ajax/get.php?module=tree').success(function (data) {	    	
-		    	$scope.categories = data;
-		    	$scope.currentFolder = data[0];
-		    	$scope.bc.push($scope.currentFolder);
-		    	//setTapListener();
-		    });*/
 		}	
 
 		$.fn.disableSelection = function() {
@@ -779,13 +627,118 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          	}
          }
 
+         $scope.LoginService = {
+         	
+         	form: {
+         		cnpj: null,
+         		username: null,
+         		password: null
+         	},
+
+         	isAuth: false,
+
+         	isLoged: function () {
+         		var self = this;
+
+         		$(".loading").fadeOut(250);
+
+         		$timeout(function () {
+         			$(".login").find(".off").addClass("min");
+         		})
+         		
+         		$.ajax({
+					url: 'ajax/get.php?module=checkUserSession',
+					method: 'POST',
+					success: function (data){
+						if(data) {
+							data = JSON.parse(data);
+
+							if(!data.hash) return self.isAuth = false;
+
+							$timeout(function () {
+								self.isAuth = true;
+
+								$('.loading').fadeOut(400);
+							});
+
+							$scope.getDepartamentos();
+
+						}else{
+							/*$('.login').show();*/
+							self.isAuth = false;
+						}
+					}
+				});
+         	},
+
+         	login: function () {
+         		var self = this;
+
+         		var l = $('.login');
+         		var ld = $('.loading');
+         		var h = l.find('h5');
+
+         		if(!self.form.cnpj || !self.form.username || !self.form.password) return;
+
+         		$.ajax({
+         			url: 'ajax/get.php?module=authUser',
+         			method: 'POST',
+
+         			data: self.form,
+         			success: function (data) {
+         				if(data) {
+
+         					data = JSON.parse(data);
+
+         					if(!data.data) return self.isAuth = false;
+
+         					self.isAuth = true;
+
+         					h.hide();
+         					$timeout(function (){
+         						$scope.loginHide(function () {
+         							l.fadeOut(250);
+         							ld.fadeOut(250);
+         							$scope.getDepartamentos();
+         						}, true);
+         					});
+
+         				}
+         			}
+         		});	
+         	}
+         }
+
+         $scope.LoginService.isLoged();
+
+         $scope.$watch(function () {
+         	return $scope.LoginService.isAuth;
+
+         }, function (newVal, oldVal) {
+         	if(newVal == true) {
+         		initializeComponents();
+         	}
+         })
+
          $scope.UploadBoard = {
          	form: {
-         		file: null,
          		type: null,
          		file_name: null,
          		year: null,
-         		month: null
+         		month: null,
+         		department: null,
+         		obs: null
+         	},
+
+         	tipo_de_arquivos: [],
+
+         	getTiposDeArquivos: function (item) {
+         		console.log('write');
+         		var self = this;
+
+         		$http.get("ajax/get.php?module=getTipoDeArquivos&departamento=" + item.id).success(function(data) {
+         			$timeout(function() { self.tipo_de_arquivos = data; });
+         		});
          	},
 
          	inProgress: {},
@@ -796,6 +749,13 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
          	addInProgressItem: function (item) {
          		this.inProgress[item.id] = item;
+         	},
+
+         	reset: function () {
+         		this.form = Object.create(this.rawForm);
+         		this.tipo_de_arquivos = [];
+
+         		$("#modal-upload").closeModal();
          	},
 
          	send: function () {
@@ -809,13 +769,27 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          		}
 
          		function doUpload () {
-         			var formData = new FormData();                
+         			var formData = new FormData();
          			formData.append('fileAttach', file);
 
          			var hash = Math.random().toString(32).substring(2);
-         			var url = 'ajax/get.php?module=uploadFile&tipo=' + self.form.type + '&nome=' + self.form.file_name + '&referencia=' + self.form.month + '/' + self.form.year;
+
+         			var mes = (self.form.month < 10) ? "0" + self.form.month : self.form.month;
+
+         			formData.append("ano", self.form.year);
+         			formData.append("mes", mes);
+         			formData.append("tipo", self.form.type);
+         			formData.append("nome", self.form.file_name);
+         			formData.append("departamento", self.form.department);
+         			formData.append("observacao", self.form.obs);
+
+         			console.log(self.form.obs);
+
+         			var url = 'ajax/get.php?module=uploadFile';
 
          			self.addInProgressItem({id: hash, file_name: self.form.file_name, progress: 0});
+
+         			$scope.showUploadBoard(true);
 
          			$('.tabs').tabs('select_tab', 'em_andamento');
 
@@ -839,6 +813,8 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          							if(e.loaded == e.total) {
          								console.log('Arquivo enviado completamente');
          								setTapListener();
+
+         								self.reset();
          							}
 
          						}, false);
@@ -856,6 +832,8 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
          			alert("Tamanho maximo de 50mb excedido");
          	}
          }
+
+         $scope.UploadBoard.rawForm = Object.create($scope.UploadBoard.form);
 
          $scope.bcBack = function (){
          	if ($scope.bc.length > 1){
@@ -1000,8 +978,12 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         	}
         }
 
-        $scope.downloadFile = function (id) {
-        	document.location = "ajax/get.php?module=getFile&id=" + id;
+        $scope.downloadFile = function (hash) {
+        	document.location = "ajax/get.php?module=getFile&hash=" + hash;
+        }
+
+        $scope.showFile = function (hash) {
+        	window.open('user_files/' + hash, hash);
         }
 
         $scope.toggleViewer = function (obj, condition){
@@ -1039,8 +1021,8 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
         				if(me.height() > me.width()){
         					me.parent().css('height', '100%');
         				}
-    					
-    					me.css({'height': '90%', 'width': '90%', 'max-width': '100%', 'max-height': '100%'});
+
+        				me.css({'height': '90%', 'width': '90%', 'max-width': '100%', 'max-height': '100%'});
         			});
 
 
@@ -1180,7 +1162,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 				//if(object.is_folder == 1) object.info = {menuOptions: null};
 
-				var defaultOptions = object.raw.menuOptions;
+				var defaultOptions = object.menuOptions;
 
 				console.log(defaultOptions);
 
@@ -1329,23 +1311,14 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 
 	        	switch (option){ // SINGLE ACTION
 	        		case "abrir":
-	        		var types = ['.jpeg','.jpg','.gif','.png', '.jpeg','.bmp', '.mp4', '.3gp', '.wav', '.mp3'];
-	        		var typeStr;
 
-	        		var type = -1;
-
-	        		if(obj.info.type){
-	        			var t = obj.info.type;
-	        			var nt = t.split(' ');
-	        			typeStr = nt[1];
-	        			type = types.indexOf(nt[0]);
-	        		}
-
-	        		if(obj.is_folder == 1){
+	        		/*if(obj.is_folder == 1){
 	        			$scope.openFolder(obj);
-	        		}else if(obj.is_folder == 0 && type != -1){
+	        		}else if(obj.is_folder == 0){
 	        			$scope.validFormat(obj);
-	        		}
+	        		}*/
+
+	        		$scope.showFile(obj.hash);
 
 	        		break;
 
@@ -1375,7 +1348,7 @@ app.controller('mainController', function($scope, $http, $filter, $timeout, $mdS
 	        		break;
 
 	        		case "download":
-	        		$scope.downloadFile(self.hash);
+	        		$scope.downloadFile(obj.hash);
 	        		break;
 
 	        		case "mover":
