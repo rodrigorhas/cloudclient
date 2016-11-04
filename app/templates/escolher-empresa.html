@@ -1,0 +1,18 @@
+<div class="container">
+	<div class="row">
+		<center>
+			<p class="title">Escolha uma empresa:</p>
+
+			<div class="companyChooser">
+				<div class="cc-container">
+
+					<ul>
+						<li ng-repeat="empresa in empresas" ng-dblclick="chooseCompany(empresa.id)">
+							{{empresa.nome}}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</center>
+	</div>
+</div>

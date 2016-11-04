@@ -563,32 +563,31 @@ function select_child_ids($parent_id,&$ida) {
 			break;
 			case "authUser":
 
-			$cnpj = $_POST['cnpj'];		
-			$username = $_POST['username'];		
+			$username = $_POST['username'];
 			$password = md5($_POST['password']);
 
-			if(!isset($cnpj) && !isset($username) && !isset($password)) exit();
+			if(!isset($username) && !isset($password)) exit();
 
-			$queryEmpresa = $mysqli->query("select * from empresas where cnpj = " . $cnpj)->fetch_assoc() or die ($mysqli->error);
-
-			$queryUsuario = $mysqli->query("SELECT * FROM usuarios WHERE  username = '". $username ."' AND password = '". $password ."' LIMIT 1") or die($mysqli->error);
+			//$queryEmpresa = $mysqli->query("select * from empresas where cnpj = " . $cnpj)->fetch_assoc() or die ($mysqli->error);
+			$query = "SELECT id, hash, name FROM usuarios WHERE username = '$username' AND password = '$password' LIMIT 1";
+			$queryUsuario = $mysqli->query($query) or die($mysqli->error);
 			$user = $queryUsuario->fetch_assoc();
 
-			$hasAccess = $mysqli->query("select * from empresa_usuario where empresa = " . $queryEmpresa['id'] . " and usuario = " . $user['id']) or die ($mysqli->error);
+			//$hasAccess = $mysqli->query("select * from empresa_usuario where empresa = " . $queryEmpresa['id'] . " and usuario = " . $user['id']) or die ($mysqli->error);
 
 			if(!$queryUsuario->num_rows) {
 				echo json_encode(array("error" => true, "message" => "Usuário não encontrado"));
 				exit();
 			}
 
-			if(!$hasAccess->num_rows) {
+			/*if(!$hasAccess->num_rows) {
 				echo json_encode(array("error" => true, "message" => "Esse usuário não tem acesso a essa empresa"));
 				exit();
-			}
+			}*/
 
-			if($queryUsuario->num_rows && $hasAccess->num_rows){
+			if($queryUsuario->num_rows) {
 				$_SESSION['hash'] = $user['hash'];
-				$_SESSION['empresa'] = $queryEmpresa['id'];
+				$_SESSION['id'] = $user['id'];
 
 				echo json_encode(array("data" => $user));
 			}
@@ -596,13 +595,46 @@ function select_child_ids($parent_id,&$ida) {
 			break;
 			case "checkUserSession":
 
-			if(isset($_SESSION['hash']))
-				echo json_encode(array("hash" => $_SESSION['hash']));
+				if(isset($_SESSION['hash']))
+					echo json_encode(array("hash" => $_SESSION['hash']));
+				else
+					echo json_encode(array("hash" => false));
 
 			break;
 			case "logout":
+			unset($_SESSION['id']);
 			unset($_SESSION['hash']);
 			unset($_SESSION['empresa']);
+			break;
+
+			case "chooseCompany":
+
+				$_SESSION['empresa'] = $_GET['id'];
+
+				echo json_encode(array("success" => true));
+
+				break;
+
+			case "listEmpresas":
+
+			$id = $_SESSION["id"];
+			$queryString = "SELECT e.id, e.nome
+							FROM empresa_usuario AS eu
+							LEFT JOIN empresas AS e ON e.id = eu.empresa
+							WHERE usuario = $id";
+
+			$result = $mysqli->query($queryString);
+
+			$json = array();
+
+			if($result->num_rows) {
+				while($row = $result->fetch_assoc()) {
+					array_push($json, $row);
+				}
+			}
+
+			echo json_encode($json);
+
 			break;
 
 			case "signin":
