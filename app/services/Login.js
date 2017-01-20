@@ -16,9 +16,10 @@ angular
 					if(response) {
 						response = JSON.parse(response);
 
-						if(!response.data || response.error) return reject();
+						if(!response.data || response.error)
+							return (response.error) ? reject(response.message) : reject();
 
-						resolve();
+						resolve(response.data);
 					}
 				});
 			});
@@ -26,6 +27,7 @@ angular
 
 		isAuth: function () {
 			return new Promise (function (resolve, reject) {
+			
 				$.ajax({
 					url: 'ajax/get.php?module=checkUserSession',
 					method: "POST"
@@ -36,7 +38,7 @@ angular
 
 						if(!response.hash) return reject("Não está logado");
 
-						resolve();
+						resolve(response.data);
 					}
 				});
 			});

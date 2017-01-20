@@ -1,6 +1,9 @@
 angular
 .module('App')
-.controller("Login", function ($scope, $timeout, LoginService, $window) {
+.controller("Login", function (
+	$scope, $timeout, LoginService,
+	$location, $rootScope,$helper, $routeParams) {
+
 	$scope.Login = {
 		form: {
 			username: null,
@@ -10,15 +13,21 @@ angular
 		login: function () {
 			var self = this;
 
+			var url = ($routeParams.redirect) ? `/${$routeParams.redirect}` : null;
+
 			LoginService
 				.auth(self.form)
-				.then(function () {
-					$window.location.hash = "#/escolher-empresa";
+				.then(function (response) {
+					$rootScope.user = Object.freeze(response);
+					$helper.path(url || "/escolher-modulo");
+				})
+				.catch(function (message) {
+					$helper.toast(message);
 				});
 		}
 	}
 
 	$timeout(function () {
-		$(".center").addClass("min");
-	});
+		$(".center.off").addClass("min");
+	}, 100);
 })

@@ -1,14 +1,17 @@
 <?php
 	session_start();
 
-	// Define database connection constants
+	error_reporting(0);
+
+	/*define('DB_HOST', '192.168.7.3');
+	define('DB_USER', 'cliente');
+	define('DB_PASSWORD', 'q1w2e3r4');
+	define('DB_NAME', 'docscacp');*/
+
 	define('DB_HOST', 'localhost');
 	define('DB_USER', 'root');
 	define('DB_PASSWORD', '923885');
-	define('DB_NAME', 'docs');
+	define('DB_NAME', 'docscacp');
 
-	//$_SESSION['hash'] = "8d8dc8365532102b95949085d2c28b7f";
-
-	$mysqli = new mysqli(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
-
+	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 ?>

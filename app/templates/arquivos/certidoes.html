@@ -1,0 +1,59 @@
+<div ng-include src="'app/templates/arquivos/nav.html'"></div>
+
+<section class="content">
+	<div class="container">
+
+		<div class="row">
+			<div class="col s12">
+				<input type="text" class="ginput col s6 offset-s3" placeholder="Filtrar por Empresa..." ng-model="search.nome">
+			</div>
+		</div>
+
+		<div class="center" ng-show="!filter.length">
+			<h2 class="title mgb-0">nenhum item encontrado para "{{search.nome}}"</h2>
+			<small>
+				{{empresas.length}} item(s) não atendem ao filtro.
+				<span class="fake-link" ng-click="search.nome = ''">Mostrar</span>
+			</small>
+		</div>
+
+		<h2>{{a}}</h2>
+		<ul class="collapsible popout" data-collapsible="accordion">
+			<li ng-repeat="empresa in (filter = (empresas | filter: search))">
+				<div class="collapsible-header"><span class="label">{{empresa.certidoes.length}}</span> {{empresa.nome}}</div>
+				<div class="collapsible-body">
+					<table class="bordered">
+						<thead>
+							<tr>
+								<th>Nome</th>
+								<th>Referência</th>
+								<th>Data de Envio</th>
+								<th>Vencimento</th>
+								<th>Restam</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr 
+								class="cursor-pointer"
+								ng-repeat="item in empresa.certidoes track by $index"
+								ng-dblclick="viewFile(item)"
+							>
+								<td title="{{item.nome}}">{{$helper.truncate(item.nome, 35)}}</td>
+								<td>{{item.mes + '/' + item.ano}}</td>
+								<td>{{item.data | date: 'dd/MM/yyyy'}}</td>
+								<td>{{item.vencimento | date: 'dd/MM/yyyy'}}</td>
+								<td
+									class="center"
+									ng-class="{'text-red': remaining(item.vencimento) <= 0}"
+									title="{{buildTitle(item.vencimento)}}"
+								>
+									{{remaining(item.vencimento, true)}}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</li>
+		</ul>
+	</div>
+</section>

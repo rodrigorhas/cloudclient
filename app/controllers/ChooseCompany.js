@@ -1,36 +1,31 @@
 angular
 .module('App')
-.controller("ChooseCompany", function ($scope, $timeout, LoginService, $window) {
-	$scope.empresas = [];
+.controller("ChooseCompany", function ($rootScope, $scope, $timeout, LoginService, $window, Database) {
 
-	$.ajax({
-		url: "ajax/get.php?module=listEmpresas"
-	})
-	.success(function (response) {
-		if(response) {
-			response = JSON.parse(response);
+	$("#addCompany").modal();
 
+	Database
+		.listEmpresas()
+		.then(function (response) {
 			$timeout(function () {
-				$scope.empresas = response;
+				$rootScope.empresas = response.data;
+
+				$timeout(function () {
+					if(response.data.length == 1) {
+						$("table tr").dblclick();
+					}
+				})
 			});	
-		}
+		});
 
-	});
-
-	$scope.chooseCompany = function (id) {
-		console.log(id);
-		$.ajax({
-			url: "ajax/get.php?module=chooseCompany",
-			data: {id: id}
-		})
-		.success(function (response) {
-			if(response) {
-				response = JSON.parse(response);
+	$scope.chooseCompany = function (cnpj) {
+		Database
+			.chooseCompany({cnpj: cnpj})
+			.then(function (response) {
+				$rootScope.empresa = response.empresa;
 
 				if(response.success)
-					$window.location.href = "#/explorar/empresa/" + id;
-			}
-
-		});		
+					$window.location.href = "#/arquivos/explorar/empresa/" + cnpj;
+			});		
 	}
 })

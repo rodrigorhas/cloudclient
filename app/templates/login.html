@@ -1,14 +1,15 @@
 <div class="login">
 	<div class="center off">
-		<div class="input-field">
-			<input label="Username" id="username" placeholder="Nome de usuario" ng-model="Login.form.username"></input>
-		</div>
-		<div class="input-field">
-			<input label="Password" type="password" placeholder="Senha" ng-model="Login.form.password"></input>
-		</div>
-		<div class="block">
-			<button class="btn btn-flat text-white" ng-click="logOff()">sair</button>
-			<button class="btn" ng-click="Login.login()">confirmar</button>
-		</div>
+		<form>
+			<div class="input-field">
+				<input label="Username" autofocus id="username" placeholder="Nome de usuario" ng-model="Login.form.username"></input>
+			</div>
+			<div class="input-field">
+				<input label="Password" type="password" placeholder="Senha" ng-model="Login.form.password"></input>
+			</div>
+			<div class="block">
+				<button class="btn" ng-click="Login.login()">confirmar</button>
+			</div>
+		</form>
 	</div>
 </div>

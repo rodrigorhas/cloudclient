@@ -1,0 +1,45 @@
+<div ng-include src="'app/templates/arquivos/nav.html'"></div>
+
+<div class="archive_viewer">
+	<div class="shortcuts view-list">
+
+		<div ng-if="!currentFolder.length" class="center">
+			<h5 class="mg-top-60"><small>Nenhum tipo de arquivo encontrado</small></h5>
+		</div>
+
+		<div ng-if="currentFolder.length" disable-selection>
+			<div class="icon" data-id="{{file.id}}" data-index="{{$index}}" ng-repeat="file in currentFolder | orderBy: 'file_name'" title="{{file.file_name}}" contextmenu>
+				<div class="content-container" ng-dblclick="openItem(file, $index, $event)" data-tap="true" layout horizontal>
+					<span flex>
+						<icon name="{{file.isDefault == 0 ? 'folder-person' : 'folder'}}" title="{{file.isDefault == 0 ? 'Pasta Privada' : 'Pasta Pública'}}"></icon>
+						<p>{{file.file_name}}</p>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="fab" ng-if="AllowTo(USER_TYPES.INTERNO)">
+	<div ng-mouseleave="visible = false;">
+		<button class="button waves-effect waves-light" ng-mouseenter="visible = true;" ng-class="{hover: visible}" ng-click="visible = false">
+			<icon class="icon first-icon" name="plus"></icon>
+			<icon class="icon second-icon" name="close"></icon>
+		</button>
+		<content ng-class="{show: visible, hide: !visible}">
+			<ul>
+				<li>
+					<button data-target="modal-upload" class="btn-floating purple" data-tooltip="Enviar arquivo" ng-click="visible = false;">
+						<icon name="upload"></icon>
+					</button>
+				</li>
+				<li>
+					<button data-target="modal-new-doctype" class="btn-floating blue" data-tooltip="Novo Tipo de Arquivo" ng-click="visible = false;">
+						<icon name="folder"></icon>
+					</button>
+				</li>
+			</ul>
+		</content>
+	</div>
+	<fab-overlay ng-class="{show: visible}"></fab-overlay>
+</div>

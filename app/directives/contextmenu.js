@@ -1,12 +1,12 @@
 angular.module("App")
-.directive("contextmenu", function () {
+.directive("contextmenu", function ($rootScope) {
 	return {
 		restrict: "A",
+		scope: true,
 		link: function (scope, element) {
-			console.log("called");
 			element.on('contextmenu', function (e) {
 				e.preventDefault();
-				scope.ContextMenu.create(e);
+				$rootScope.ContextMenu.create(e);
 			});
 		}
 	}

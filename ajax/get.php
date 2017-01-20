@@ -1,206 +1,52 @@
 <?php
-error_reporting(0);
+error_reporting(E_ALL);
 
 include_once('conn.php');
+include "removeAccents.php";
 
 $mysqli->query("use docs");
 
 if(isset($_SESSION['hash'])) $hash = $_SESSION['hash'];
-$module = $_GET['module'];
+	$module = $_GET['module'];
 
-function remove_accents($string) {
-	if ( !preg_match('/[\x80-\xff]/', $string) )
-		return $string;
-
-	$chars = array(
-	    // Decompositions for Latin-1 Supplement
-		chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
-		chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
-		chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
-		chr(195).chr(135) => 'C', chr(195).chr(136) => 'E',
-		chr(195).chr(137) => 'E', chr(195).chr(138) => 'E',
-		chr(195).chr(139) => 'E', chr(195).chr(140) => 'I',
-		chr(195).chr(141) => 'I', chr(195).chr(142) => 'I',
-		chr(195).chr(143) => 'I', chr(195).chr(145) => 'N',
-		chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
-		chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
-		chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
-		chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
-		chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
-		chr(195).chr(159) => 's', chr(195).chr(160) => 'a',
-		chr(195).chr(161) => 'a', chr(195).chr(162) => 'a',
-		chr(195).chr(163) => 'a', chr(195).chr(164) => 'a',
-		chr(195).chr(165) => 'a', chr(195).chr(167) => 'c',
-		chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
-		chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
-		chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
-		chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
-		chr(195).chr(177) => 'n', chr(195).chr(178) => 'o',
-		chr(195).chr(179) => 'o', chr(195).chr(180) => 'o',
-		chr(195).chr(181) => 'o', chr(195).chr(182) => 'o',
-		chr(195).chr(182) => 'o', chr(195).chr(185) => 'u',
-		chr(195).chr(186) => 'u', chr(195).chr(187) => 'u',
-		chr(195).chr(188) => 'u', chr(195).chr(189) => 'y',
-		chr(195).chr(191) => 'y',
-	    // Decompositions for Latin Extended-A
-		chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
-		chr(196).chr(130) => 'A', chr(196).chr(131) => 'a',
-		chr(196).chr(132) => 'A', chr(196).chr(133) => 'a',
-		chr(196).chr(134) => 'C', chr(196).chr(135) => 'c',
-		chr(196).chr(136) => 'C', chr(196).chr(137) => 'c',
-		chr(196).chr(138) => 'C', chr(196).chr(139) => 'c',
-		chr(196).chr(140) => 'C', chr(196).chr(141) => 'c',
-		chr(196).chr(142) => 'D', chr(196).chr(143) => 'd',
-		chr(196).chr(144) => 'D', chr(196).chr(145) => 'd',
-		chr(196).chr(146) => 'E', chr(196).chr(147) => 'e',
-		chr(196).chr(148) => 'E', chr(196).chr(149) => 'e',
-		chr(196).chr(150) => 'E', chr(196).chr(151) => 'e',
-		chr(196).chr(152) => 'E', chr(196).chr(153) => 'e',
-		chr(196).chr(154) => 'E', chr(196).chr(155) => 'e',
-		chr(196).chr(156) => 'G', chr(196).chr(157) => 'g',
-		chr(196).chr(158) => 'G', chr(196).chr(159) => 'g',
-		chr(196).chr(160) => 'G', chr(196).chr(161) => 'g',
-		chr(196).chr(162) => 'G', chr(196).chr(163) => 'g',
-		chr(196).chr(164) => 'H', chr(196).chr(165) => 'h',
-		chr(196).chr(166) => 'H', chr(196).chr(167) => 'h',
-		chr(196).chr(168) => 'I', chr(196).chr(169) => 'i',
-		chr(196).chr(170) => 'I', chr(196).chr(171) => 'i',
-		chr(196).chr(172) => 'I', chr(196).chr(173) => 'i',
-		chr(196).chr(174) => 'I', chr(196).chr(175) => 'i',
-		chr(196).chr(176) => 'I', chr(196).chr(177) => 'i',
-		chr(196).chr(178) => 'IJ',chr(196).chr(179) => 'ij',
-		chr(196).chr(180) => 'J', chr(196).chr(181) => 'j',
-		chr(196).chr(182) => 'K', chr(196).chr(183) => 'k',
-		chr(196).chr(184) => 'k', chr(196).chr(185) => 'L',
-		chr(196).chr(186) => 'l', chr(196).chr(187) => 'L',
-		chr(196).chr(188) => 'l', chr(196).chr(189) => 'L',
-		chr(196).chr(190) => 'l', chr(196).chr(191) => 'L',
-		chr(197).chr(128) => 'l', chr(197).chr(129) => 'L',
-		chr(197).chr(130) => 'l', chr(197).chr(131) => 'N',
-		chr(197).chr(132) => 'n', chr(197).chr(133) => 'N',
-		chr(197).chr(134) => 'n', chr(197).chr(135) => 'N',
-		chr(197).chr(136) => 'n', chr(197).chr(137) => 'N',
-		chr(197).chr(138) => 'n', chr(197).chr(139) => 'N',
-		chr(197).chr(140) => 'O', chr(197).chr(141) => 'o',
-		chr(197).chr(142) => 'O', chr(197).chr(143) => 'o',
-		chr(197).chr(144) => 'O', chr(197).chr(145) => 'o',
-		chr(197).chr(146) => 'OE',chr(197).chr(147) => 'oe',
-		chr(197).chr(148) => 'R',chr(197).chr(149) => 'r',
-		chr(197).chr(150) => 'R',chr(197).chr(151) => 'r',
-		chr(197).chr(152) => 'R',chr(197).chr(153) => 'r',
-		chr(197).chr(154) => 'S',chr(197).chr(155) => 's',
-		chr(197).chr(156) => 'S',chr(197).chr(157) => 's',
-		chr(197).chr(158) => 'S',chr(197).chr(159) => 's',
-		chr(197).chr(160) => 'S', chr(197).chr(161) => 's',
-		chr(197).chr(162) => 'T', chr(197).chr(163) => 't',
-		chr(197).chr(164) => 'T', chr(197).chr(165) => 't',
-		chr(197).chr(166) => 'T', chr(197).chr(167) => 't',
-		chr(197).chr(168) => 'U', chr(197).chr(169) => 'u',
-		chr(197).chr(170) => 'U', chr(197).chr(171) => 'u',
-		chr(197).chr(172) => 'U', chr(197).chr(173) => 'u',
-		chr(197).chr(174) => 'U', chr(197).chr(175) => 'u',
-		chr(197).chr(176) => 'U', chr(197).chr(177) => 'u',
-		chr(197).chr(178) => 'U', chr(197).chr(179) => 'u',
-		chr(197).chr(180) => 'W', chr(197).chr(181) => 'w',
-		chr(197).chr(182) => 'Y', chr(197).chr(183) => 'y',
-		chr(197).chr(184) => 'Y', chr(197).chr(185) => 'Z',
-		chr(197).chr(186) => 'z', chr(197).chr(187) => 'Z',
-		chr(197).chr(188) => 'z', chr(197).chr(189) => 'Z',
-		chr(197).chr(190) => 'z', chr(197).chr(191) => 's'
+	function getUserTypes () {
+		$const = array(
+			"FUNCIONARIO" => 1,
+			"CHEFE" => 2,
+			"CLIENTE" => 3
 		);
 
-$string = strtr($string, $chars);
+		$const["INTERNO"] = array($const["FUNCIONARIO"], $const["CHEFE"]);
 
-return $string;
-}
+		return $const;
+	}
 
+	$_USER_TYPES = getUserTypes();
 
-function select_child_ids($parent_id,&$ida) {
+	function ChooseCompany ($cnpj, $params = array("omitMessages" => false, "bypass" => false)) {
+		global $mysqli;
+		global $_SESSION;
 
-	global $mysqli;
-	global $file_menuOptions;
-	global $folder_menuOptions;
+		if($params["bypass"] || empty($_SESSION["empresa-id"])) {
+			$res = $mysqli->query("select * from empresas where cnpj = $cnpj");
 
+			if($res->num_rows) {
+				$empresa = $res->fetch_assoc();
 
-	$result = $mysqli->query("SELECT * FROM files WHERE deleted = 0 and id = " . $parent_id);
-	if($result->num_rows){
-		$r = $result->fetch_assoc();
+				$_SESSION['empresa-cnpj'] = $empresa['cnpj'];
+				$_SESSION['empresa-id'] = $empresa['id'];
 
-		$fileInfo = json_decode($r['file_info']);
-		$sql_menuOptions = $mysqli->query("SELECT * FROM files_meta WHERE meta_key = 'menuOptions' AND file_id = '". $parent_id ."'") or die($mysqli->error);
-		$menuOptions = "";			
-
-			//echo $sql_menuOptions->num_rows;
-
-			//if($sql_menuOptions->num_rows){
-		$r_menuOptions = $sql_menuOptions->fetch_assoc();
-		$menuOptions = explode(",", $r_menuOptions['meta_value']);							
-			//}else{
-			//	$menuOptions = array('detalhes');
-			//}
-		$fileInfo->menuOptions = $menuOptions;
-
-		$r['info'] = $fileInfo;
-
-		$r['children'] = array();
-		$query = "SELECT * FROM files WHERE deleted = 0 and parent = " . $r['id'];
-		$result = $mysqli->query($query) or die($mysqli->error);
-
-		while($row = $result->fetch_assoc()){
-			$fileInfo = json_decode($row['file_info']);
-			if($result->num_rows){
-				$row['children'] = array();
-				if($row['id']){
-					$row['is_folder'] = $row['is_folder'];
-					$row['is_root'] = $row['is_root'];
-					$row['deleted'] = $row['deleted'];
-						//$sql_menuOptions = $mysqli->query("SELECT * FROM files_meta WHERE meta_key = 'menuOptions' AND file_id = '". $row['id'] ."'");
-
-						/*if($sql_menuOptions->num_rows){
-							$r_menuOptions = $sql_menuOptions->fetch_assoc();
-							$fileInfo->menuOptions = explode(",", $r_menuOptions['meta_value']);
-						}else{
-							$fileInfo->menuOptions = array('abrir');
-						}*/
-
-						$fileInfo->menuOptions = $menuOptions;
-						
-
-						/*if($row['is_folder'] != "1" ){
-							$fileInfo->menuOptions = $folder_menuOptions;
-						} else {
-							$fileInfo->menuOptions = array('abrir');
-						}*/
-
-
-						//print_r($r['info']);
-						$row['info'] = $fileInfo;
-						$r['children'][] = $row;
-						select_child_ids($row['id'], $row['children']);
-
-					}
-				}else{
-					return false;
+				if(!$params["omitMessages"]) {
+					echo json_encode(array("success" => true, "empresa" => $empresa));
+					exit();
 				}
-			}		
-			array_push($ida, $r);
-		}
-
-	}
-
-	function createTree(&$list, $parent){
-		$tree = array();
-		foreach ($parent as $k=>$l){
-			if(isset($list[$l['id']])){
-				$l['children'] = createTree($list, $list[$l['id']]);
 			}
-			$tree[] = $l;
-		} 
-		return $tree;
-	}
 
-	$file_menuOptions = array('abrir','renomear','mover','compartilhar','download','link','favoritar','detalhes','remover');
-	$folder_menuOptions = array('abrir','renomear','mover','compartilhar','favoritar','remover');
+			if(!$params["omitMessages"]) {
+				echo json_encode(array("success" => false, "error" => "Empresa não encontrada..."));
+			}
+		}
+	}
 
 	function rangeDownload($file) {
 		$fp = @fopen($file, 'rb');
@@ -280,7 +126,7 @@ function select_child_ids($parent_id,&$ida) {
 		header("Content-Length: $length");
 		//header("Connection: close");
 
-		// Start buffered download
+		// Start buffered downloadk
 		$buffer = 1024 * 16;
 		set_time_limit(0); // Reset time limit for big files
 		while(!feof($fp) && ($p = ftell($fp)) <= $end && !connection_aborted()) {
@@ -302,33 +148,33 @@ function select_child_ids($parent_id,&$ida) {
 		}
 
 		fclose($fp);
-
 	}
 
-	function download($fileHash, $fileName, $fileType, $video, $download){
-			//echo "DOWNLOADING";
+	function download($fileHash, $fileName, $fileType, $video, $download) {
+
 		$downloadRate = 2048;
 		$quoted = sprintf('"%s"', addcslashes(basename($fileName), '"\\'));			
-		$file = '../user_files/' . $fileHash;
+		$folder = implode(array("..", "user_files", $empresa, $_SESSION['username']), $fileHash, "/");
 
-			//if(false){
-		if(!$video){
+		if(!$video) {
 
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			header('Content-Type: '.finfo_file($finfo, $file));
 			$finfo = finfo_open(FILEINFO_MIME_ENCODING);
 			header('Content-Transfer-Encoding: '.finfo_file($finfo, $file));
 			header('Content-disposition: attachment; filename="'. $fileName .'"');
-				readfile($file); // do the double-download-dance (dirty but worky)
+				readfile($file);
 				flush();
 
 			} else {
+
 				header("Content-type: " . $fileType);
 
-				if (isset($_SERVER['HTTP_RANGE']))  { // do it for any device that supports byte-ranges not only iPhone
+				if (isset($_SERVER['HTTP_RANGE'])) {
 
 					rangeDownload($file);
 				}
+
 				else {
 
 					header("Content-Length: ".filesize($file));
@@ -342,207 +188,557 @@ function select_child_ids($parent_id,&$ida) {
 
 					fclose($file);
 				}				
-				
 			}
-			//}
+
 			exit();
+	}
+
+	function strpos_r($haystack, $needle){
+
+		if(strlen($needle) > strlen($haystack))
+			trigger_error(sprintf("%s: length of argument 2 must be <= argument 1", __FUNCTION__), E_USER_WARNING);
+
+		$seeks = array();
+		while($seek = strrpos($haystack, $needle))
+		{
+			array_push($seeks, $seek);
+			$haystack = substr($haystack, 0, $seek);
+		}
+		return $seeks;
+	}
+
+	function getUserByHash ($hash) {
+		global $mysqli;
+
+		$query = $mysqli->query("SELECT * FROM usuarios WHERE hash = '$hash' LIMIT 1") or die($mysqli->error);
+		$user = $query->fetch_assoc();
+		return $user;
+	}
+
+	function GenQuery ($query, $model) {
+
+		//var_dump($model);
+
+		foreach ($model as $key => $value) {
+			if(!empty($value)) {
+				$query .= " and $key = '$value'";
+			}
 		}
 
-		function strpos_r($haystack, $needle){
+		//var_dump($query);
 
-			if(strlen($needle) > strlen($haystack))
-				trigger_error(sprintf("%s: length of argument 2 must be <= argument 1", __FUNCTION__), E_USER_WARNING);
+		return $query;
+	}
 
-			$seeks = array();
-			while($seek = strrpos($haystack, $needle))
-			{
-				array_push($seeks, $seek);
-				$haystack = substr($haystack, 0, $seek);
+	function UserCheck ($info) {
+		global $mysqli;
+		global $_USER_TYPES;
+
+		if($info["user-type"] == $_USER_TYPES["CLIENTE"]) {
+			$queryResponse = $mysqli->query("select id, visualizado_em from arquivos where visualizado_em is null and departamento = ". $info["departamento"] ." and tipo = ". $info["tipo"] ." and empresa = ". $info["empresa-id"]) or die($mysqli->error);
+
+			if($queryResponse->num_rows) {
+				$queryResponse2 = $mysqli->query("update arquivos set visualizado_em = NOW() where empresa = ". $info["empresa-id"] ." and departamento = ". $info["departamento"] ." and tipo = ". $info["tipo"] ." and visualizado_em is null") or die ($mysqli->error);
 			}
-			return $seeks;
+		}
+	}
+
+	function isBoolean($value) {
+	   if ($value && strtolower($value) !== "false") {
+	      return true;
+	   } else {
+	      return false;
+	   }
+	}
+
+	function exists ($value, $array) {
+		return array_search($value, $array);
+	}
+
+	function AllowTo ($array) {
+		return exists($_SESSION["user-type"], $array);
+	}
+
+	function safeCheck ($value) {
+		if(!empty($value) && $value != "null" && sizeof($value) > 0) {
+			return $value;
 		}
 
-		function getUserByHash ($hash) {
-			global $mysqli;
+		else return NULL;
+	}
 
-			$query = $mysqli->query("SELECT * FROM usuarios WHERE hash = '$hash' LIMIT 1") or die($mysqli->error);
-			$user = $query->fetch_assoc();
-			return $user;
+	function safe ($value, $flag) {
+		if($flag) {
+			$value = (safeCheck($_POST[$value])) ? $_POST[$value] : $_GET[$value];
+			return safeCheck($value);
 		}
 
-		function createItem ($item, $isFolder, $type) {
-			$newItem = new stdClass();
+		else return safeCheck($value);
+	}
 
-			$newItem->file_name = $item['nome'];
-			$newItem->is_folder = $isFolder;
-			$newItem->deleted = 0;
-		//$newItem->children = array($sharedFolder);
-			$newItem->id = $item['id'];
+	$cert_id = 135;
 
-			if(!$isFolder) {
-				$newItem->raw = $item;
-			}
-
-			if($item->menuOptions) {
-				$newItem->menuOptions = $item->menuOptions;
-			}
-
-			if(isset($type)) {
-				$newItem->type = $type;
-			}
-
-			return $newItem;
-		}
-
-		switch ($module) {
-			case "getFile":
-
-			$download = $_GET['dl'];
-			$video = $_GET['video'];
-			$fileId = $_GET['id'];
-			$fileHash = $_GET['hash'];
-
-			$query = "SELECT
-			*				
-			FROM
-			arquivos
-			WHERE							
-			hash = '". $fileHash ."'
-			LIMIT 1";
-
-
-			$result = $mysqli->query($query) or die($mysqli->error);
-
-			if($result->num_rows){
-				$row = $result->fetch_assoc();
-				download($row['hash'], $row['nome'], $row['type'], $video, $download);
-			}
-
-			break;
-
-			case "getDepartamentos":
-
-			$mysqli->query("use names utf8");
-			$result = $mysqli->query("select * from departamentos") or die($mysqli->error);
-
-			$json = array();
-			while ($item = $result->fetch_assoc()) {
-				$item['nome'] = utf8_encode($item['nome']);
-				array_push($json, createItem($item, 1, "departamentos"));
-			}
-
-			echo json_encode($json);
-			break;
-
-			case "getTipoDeArquivos":
-
-			$query = "select * from tipo_de_arquivos";
-			if($_GET['departamento']) $query .= " where departamento = ". $_GET['departamento'];
-
-			$query .= " ORDER BY nome";
-
-			$result = $mysqli->query($query);
-
-			$json = array();
-			while ($item = $result->fetch_assoc()) {
-				$item['nome'] = utf8_encode($item['nome']);
-				$finalItem = ($_GET['departamento']) ? createItem($item, 1, "tipo_de_arquivo") : $item;
-				array_push($json, $finalItem);
-			}
-
-			echo json_encode($json);
-
-			break;
-
-			case "getArquivos":
-
-			$empresa = $_SESSION['empresa'];
-			$ano = $_GET['ano'];
-			$mes = $_GET['mes'];
-			$tipo = $_GET['tipo_de_arquivo'];
+	switch ($module) {
+		case "checarValidadeCertidoes":
 
 			$mysqli->query("set names utf8");
+
+			$empresa = $_SESSION['empresa-id'];
+			$days = 10;
 
 			$query = "SELECT 
 			a.id,
 			a.ano,
 			a.mes,
-			a.type,
-			a.hash,
 			a.nome,
 			a.data,
-			a.obs,
+			a.hash,
+			a.vencimento,
 			d.nome as departamento,
 			t.nome as tipo,
-			e.nome as empresa,
 			u.name as usuario
 			FROM 
 			arquivos as a
 			LEFT JOIN departamentos as d ON d.id = a.departamento
 			LEFT JOIN tipo_de_arquivos as t ON t.id = a.tipo
-			LEFT JOIN empresas as e ON e.id = a.empresa
 			LEFT JOIN usuarios as u ON u.id = a.usuario
-			WHERE a.empresa = " . $empresa;
+			WHERE t.id = $cert_id
+			AND CURDATE() >= vencimento - interval $days day
+			AND a.empresa = " . $empresa;
 
-			if($tipo || $ano || $mes) $query .= " and ";
+			if($queryResponse = $mysqli->query($query)){
+				if($queryResponse->num_rows) {
+					$json = array();
 
-			if($tipo) $query .= "tipo = " . $tipo;
+					while($row = $queryResponse->fetch_assoc()) {
+						array_push($json, $row);
+					}
 
-			$query .= " ORDER BY a.mes, a.ano, a.data";
+					echo json_encode(array("success" => true, "data" => $json));
+					exit();
+				}
+			}
+
+			echo json_encode(array("success" => false));
+
+			break;
+
+		case "checarValidadeDeTodasAsCertidoes":
+
+			$mysqli->query("set names utf8");
+
+			$days = 10;
+
+			$query = "SELECT 
+			a.id,
+			a.ano,
+			a.mes,
+			a.nome,
+			a.data,
+			a.hash,
+			a.vencimento,
+			d.nome as departamento,
+			t.nome as tipo,
+			u.name as usuario,
+			e.nome as empresa
+			FROM 
+			arquivos as a
+			LEFT JOIN departamentos as d ON d.id = a.departamento
+			LEFT JOIN tipo_de_arquivos as t ON t.id = a.tipo
+			LEFT JOIN usuarios as u ON u.id = a.usuario
+			LEFT JOIN empresas as e ON e.id = a.empresa
+			WHERE t.id = $cert_id
+			AND CURDATE() >= vencimento - interval $days day
+			order by empresa";
+
+			if($queryResponse = $mysqli->query($query)){
+				if($queryResponse->num_rows) {
+					$template = array();
+					$temp = array();
+					$json = array();
+
+					$rowsCount = $queryResponse->num_rows;
+
+					while($row = $queryResponse->fetch_assoc()) {
+						$temp[$row["empresa"]][] = $row;
+					}
+
+					foreach ($temp as $empresa => $certidoes) {
+						$json[] = array(
+									"nome" => $empresa,
+									"certidoes" => $certidoes
+								);
+					}
+
+					echo json_encode(
+							array(
+								"success" => true,
+								"data" => array(
+									"count" => $rowsCount,
+									"data" => $json
+								)
+							)
+						);
+
+					exit();
+				}
+			}
+
+			echo json_encode(array("success" => false));
+
+			break;
+
+		case "getFile":
+
+		$download = $_GET['dl'];
+		$video = $_GET['video'];
+		$fileId = $_GET['id'];
+		$fileHash = $_GET['hash'];
+
+		$query = "SELECT
+		*				
+		FROM
+		arquivos
+		WHERE							
+		hash = '". $fileHash ."'
+		LIMIT 1"; 
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		if($result->num_rows){
+			$row = $result->fetch_assoc();
+
+			if($row["tipo"] == 136) { // Contrato Social
+				$downloadFileName = $row["obs"];
+			}
+
+			else {
+				$downloadFileName = $row["nome"];
+			}
+
+			echo $downloadFileName;
+
+			download($row['hash'], $downloadFileName, $row['type'], $video, $download);
+		}
+
+		break;
+
+		case "getDepartamentos":
+
+		$mysqli->query("set names utf8");
+		$result = $mysqli->query("select id, nome as file_name from departamentos order by nome") or die($mysqli->error);
+
+		if($result->num_rows) {
+
+			$json = array();
+
+			while ($item = $result->fetch_assoc()) {
+				array_push($json, $item);
+			}
+
+			echo json_encode(array("success" => true, "data" => $json));
+
+			exit();
+		}
+
+		echo json_encode(array("success" => false));
+
+		break;
+
+		case "getTipoDeArquivos":
+
+			$mysqli->query("set names utf8");
+
+			$menuEmployee = array("docType.rename", "docType.remove");
+
+			$dep = null;
+			$empresa = $_SESSION['empresa-id'];
+
+			if($_GET["departamento"]) $dep = $_GET['departamento'];
+			else if($_POST["departamento"]) $dep = $_POST['departamento'];
+
+			$query = "(select id, nome as file_name, departamento, 1 as isDefault
+						from tipo_de_arquivos as ta
+						where empresa is null". ($dep ? " and departamento = $dep" : "").")
+						union
+						(select id, nome as file_name, departamento, 0 as isDefault
+						from tipo_de_arquivos as ta
+						WHERE empresa = $empresa". ($dep ? " and departamento = $dep" : "").")
+						order by file_name";
 
 			$result = $mysqli->query($query);
 
+			if($result->num_rows) {
+				$json = array();
+
+				while ($item = $result->fetch_assoc()) {
+					if(AllowTo($_USER_TYPES["INTERNO"])) {
+						$item["menuOptions"] = $menuEmployee;
+					}
+
+					array_push($json, $item);
+				}
+
+				echo json_encode(array("success" => true, "data" => $json));
+
+				exit();
+			}
+
+			echo json_encode(array("success" => true, "data" => array()));
+
+		break;
+
+		case "getArquivos":
+
+		$empresa = $_SESSION['empresa-id'];
+		$ano = $_POST['ano'];
+		$mes = $_POST['mes'];
+		$tipo = $_POST['tipoDeArquivo'];
+		$departamento = $_POST['departamento'];
+		$pesquisa = intval($_POST["pesquisa"]);
+
+		$menuEmployee = array("doc.abrir", "doc.download", "doc.editar"); // "doc.remover"
+		$menuBoss = array("doc.abrir", "doc.download", "doc.editar", "doc.remover");
+		$menuClient = array("doc.abrir", "doc.download");
+
+		$mysqli->query("set names utf8");
+
+		$query = "SELECT 
+		a.id,
+		a.ano,
+		a.mes,
+		a.type,
+		a.hash,
+		a.nome,
+		a.data,
+		a.vencimento,
+		a.obs,
+		a.visualizado_em,
+		d.nome as departamento,
+		t.nome as tipo,
+		u.name as usuario,
+		t.isParcelamento as isParcelamento,
+		1 as available
+		FROM 
+		arquivos as a
+		LEFT JOIN departamentos as d ON d.id = a.departamento
+		LEFT JOIN tipo_de_arquivos as t ON t.id = a.tipo
+		LEFT JOIN usuarios as u ON u.id = a.usuario
+		WHERE a.empresa = " . $empresa;
+
+		if($pesquisa && $tipo != $cert_id) {
+			$query .= " and a.tipo != $cert_id";
+		}
+
+		$query = GenQuery($query, array(
+			"a.mes" => $mes,
+			"a.ano" => $ano,
+			"a.departamento" => $departamento,
+			"t.id" => $tipo
+		));
+
+		$query .= " ORDER BY a.mes DESC, a.ano DESC, a.id DESC";
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		if($result->num_rows) {
 			$json = array();
+
 			while ($item = $result->fetch_assoc()) {
-				//$item['nome'] = utf8_encode(implode(" - ", array($item['tipo'], $item['referencia'])));
-				$item["menuOptions"] = array("abrir", "download", "compartilhar");
+
+				if($_SESSION['user-type'] == $_USER_TYPES["CHEFE"]) {
+					$item["menuOptions"] = $menuBoss;
+				}
+
+				else if($_SESSION['user-type'] == $_USER_TYPES["FUNCIONARIO"]) {
+					$item["menuOptions"] = $menuEmployee;
+				}
+
+				else if ($_SESSION['user-type'] == $_USER_TYPES["CLIENTE"]) {
+
+					$hasMenu = true;
+
+					if(safe($item["isParcelamento"])) {
+						$vencimento = safe($item["vencimento"]);
+
+						if($vencimento) {
+							$vencimento = new DateTime($vencimento);
+							$now = new DateTime("now");
+
+							if($now >= $vencimento) {
+								$item["available"] = false;
+								$hasMenu = false;
+							}
+						}
+					}
+
+					if($hasMenu)
+						$item["menuOptions"] = $menuClient;
+				}
+
+				$item['link'] = implode(array("user_files", $_SESSION['empresa-id'], $_SESSION['id'], $item["hash"]), "/");
 
 				array_push($json, $item);
 			}
 
-			echo json_encode($json);
+			if($pesquisa == 0) {
+				UserCheck(array(
+					"departamento" => $departamento,
+					"tipo" => $tipo,
+					"user-type" => $_SESSION["user-type"],
+					"empresa-id" => $_SESSION["empresa-id"]
+				));
+			}
 
-			break;
-			case "trash":
+			echo json_encode(array("success" => true, "data" => $json));
 
-			$ids = $_POST['ids'];
-			$deleted = $_POST['deleted'];
-			$ids = str_replace("[", "", $ids);
-			$ids = str_replace("]", "", $ids);
-			$ids = str_replace('"', "'", $ids);
-			$query = "UPDATE			
-			files
-			SET
-			`deleted` = ". $deleted ."
-			WHERE
-			files.group_hash = '$hash' 
-			AND
-			files.id
-			IN (". $ids .")";
+			exit();
+		}
 
-			$sql = $mysqli->query($query) or die($mysqli->error);			
+		echo json_encode(array("success" => true, "data" => array()));
 
-			break;
-			case "uploadFile":		
+		break;
+
+		case "search":
+
+		$empresa = $_SESSION['empresa-id'];
+		$ano = safe($_POST['ano']);
+		$vencimento = safe($_POST['vencimento']);
+		$mes = safe($_POST['mes']);
+		$tipo = safe($_POST['tipoDeArquivo']);
+		$departamento = safe($_POST['departamento']);
+
+		$menuEmployee = array("doc.abrir", "doc.download", "doc.editar"); // "doc.remover"
+		$menuBoss = array("doc.abrir", "doc.download", "doc.editar", "doc.remover");
+		$menuClient = array("doc.abrir", "doc.download");
+
+		$mysqli->query("set names utf8");
+
+		$query = "SELECT 
+		a.id,
+		a.ano,
+		a.mes,
+		a.type,
+		a.hash,
+		a.nome,
+		a.data,
+		a.vencimento,
+		a.obs,
+		a.visualizado_em,
+		d.nome as departamento,
+		t.nome as tipo,
+		u.name as usuario
+		FROM 
+		arquivos as a
+		LEFT JOIN departamentos as d ON d.id = a.departamento
+		LEFT JOIN tipo_de_arquivos as t ON t.id = a.tipo
+		LEFT JOIN usuarios as u ON u.id = a.usuario
+		WHERE a.empresa = $empresa";
+
+		if($tipo != $cert_id) {
+			$query .= " and a.tipo != $cert_id";
+		}
+
+		if(isset($vencimento)) {
+			$query .= " and month(a.vencimento) = month('$vencimento')
+					and day(a.vencimento) <= day('$vencimento')";
+		}
+
+		$query = GenQuery($query, array(
+			"a.mes" => $mes,
+			"a.ano" => $ano,
+			"a.departamento" => $departamento,
+			"t.id" => $tipo
+		));
+
+		$query .= " ORDER BY a.mes DESC, a.ano DESC, a.id DESC" . (isset($vencimento) ? ", a.vencimento DESC" : "");
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		if($result->num_rows) {
+			$json = array();
+
+			while ($item = $result->fetch_assoc()) {
+				if($_SESSION['user-type'] == $_USER_TYPES["CHEFE"]) {
+					$item["menuOptions"] = $menuBoss;
+				}
+
+				else if($_SESSION['user-type'] == $_USER_TYPES["FUNCIONARIO"]) {
+					$item["menuOptions"] = $menuEmployee;
+				}
+
+				else if ($_SESSION['user-type'] == $_USER_TYPES["CLIENTE"]) {
+					$item["menuOptions"] = $menuClient;
+				}
+
+				array_push($json, $item);
+			}
+
+			echo json_encode(array("success" => true, "data" => $json));
+
+			exit();
+		}
+
+		echo json_encode(array("success" => true, "data" => array()));
+
+		break;
+
+		case "deleteDoc":
+
+		$id = $_POST['id'];
+		$hash = $_POST['hash'];
+
+		$res = $mysqli->query("delete from arquivos where id = $id limit 1") or die($mysqli->error);
+
+		if($res) {
+			if(unlink("../user_files/$hash")) {
+				echo json_encode(array("success" => true));
+				exit();
+			}
+
+			else {
+				echo json_encode(array("success" => false, "error" => true, "message" => "Erro ao tentar excluir o arquivo..."));
+				exit();	
+			}
+		}
+
+		echo json_encode(array("success" => false));
+
+		break;
+
+		case "uploadFile":
+
 			$up_id = md5(uniqid(rand(), true));
 
 			$mysqli->query("set names utf8");
 
-			$tipo = $_POST['tipo'];
-			$ano = $_POST['ano'];
-			$mes = $_POST['mes'];
-			$nome = $_POST['nome'];
-			$departamento = $_POST['departamento'];
-			$observacao = $_POST['observacao'];
+			$empresa = $_SESSION['empresa-id'];
+			$usuario = $_SESSION['id'];
+
+			$tipo = safe($_POST['tipo']);
+			$ano = safe($_POST['ano']);
+			$mes = safe($_POST['mes']);
+			$nome = safe($_POST['nome']);
+			$vencimento = safe($_POST['vencimento']);
+			$departamento = safe($_POST['departamento']);
+			$observacao = safe($_POST['observacao']);
 
 			$fileField = $_FILES['fileAttach'];
 
 			$fileTmpname = $fileField['tmp_name'];
-			$fileName = utf8_decode($fileField['name']);
+			$fileName = (isset($nome)) ? $nome : $fileField['name'];
 			$fileSize = $fileField['size'];
 			$fileType = $fileField['type'];
 
-			$folder = "../user_files/";
+			$rawName = basename($fileName, '.pdf');
+
+			$folder = implode(array("..", "user_files", $empresa, $_SESSION['id']), "/") . "/";
+
+			if (!is_dir($folder)) {
+				$old = umask(0);
+			    mkdir($folder, 0766, true);
+				umask($old);
+			}
 
 			$originalFile = $folder . $up_id;
 
@@ -550,97 +746,336 @@ function select_child_ids($parent_id,&$ida) {
 
 				chmod($originalFile, 0766);
 
-				$query = "INSERT INTO arquivos (`tipo`, `ano`, `mes`, `tamanho`, `data`, `empresa`, `usuario`, `type`, `hash`, `departamento`, `obs`) VALUES ('$tipo', '$ano', '$mes', '$fileSize', NOW(), '1', '1', '$fileType', '$up_id', '$departamento', '$observacao')";
+				$query = "INSERT INTO arquivos (`nome`, `tipo`, `ano`, `mes`, `tamanho`, `data`, `empresa`, `usuario`, `type`, `hash`, `departamento`, `obs`, `vencimento`) VALUES ('$rawName', '$tipo', '$ano', '$mes', '$fileSize', NOW(), '$empresa', '$usuario', '$fileType', '$up_id', '$departamento', '$observacao', ". (isset($vencimento) ? "'$vencimento'" : 'DEFAULT') .")";
 
 				$result = $mysqli->query($query) or die($mysqli->error);
 
-				echo json_encode(array("uploaded" => true));
+				echo json_encode(array("success" => true));
+
 				exit();
 			}
 
-			echo json_encode(array("uploaded" => false));
+			echo json_encode(array("success" => false));
 
-			break;
-			case "authUser":
+		break;
+
+		case "authUser":
 
 			$username = $_POST['username'];
 			$password = md5($_POST['password']);
 
 			if(!isset($username) && !isset($password)) exit();
 
-			//$queryEmpresa = $mysqli->query("select * from empresas where cnpj = " . $cnpj)->fetch_assoc() or die ($mysqli->error);
-			$query = "SELECT id, hash, name FROM usuarios WHERE username = '$username' AND password = '$password' LIMIT 1";
+			$query = "SELECT id, hash, username, name, type FROM usuarios WHERE username = '$username' AND password = '$password' LIMIT 1";
 			$queryUsuario = $mysqli->query($query) or die($mysqli->error);
 			$user = $queryUsuario->fetch_assoc();
 
-			//$hasAccess = $mysqli->query("select * from empresa_usuario where empresa = " . $queryEmpresa['id'] . " and usuario = " . $user['id']) or die ($mysqli->error);
-
 			if(!$queryUsuario->num_rows) {
-				echo json_encode(array("error" => true, "message" => "Usuário não encontrado"));
+				echo json_encode(array("error" => true, "message" => "Usuário/Senha incorreto(s)"));
 				exit();
 			}
-
-			/*if(!$hasAccess->num_rows) {
-				echo json_encode(array("error" => true, "message" => "Esse usuário não tem acesso a essa empresa"));
-				exit();
-			}*/
 
 			if($queryUsuario->num_rows) {
 				$_SESSION['hash'] = $user['hash'];
 				$_SESSION['id'] = $user['id'];
+				$_SESSION['user-type'] = $user['type'];
+				$_SESSION['username'] = $user['username'];
 
-				echo json_encode(array("data" => $user));
+				echo json_encode(array("success" => true, "data" => $user));
 			}
 
 			break;
+
 			case "checkUserSession":
+				if(isset($_SESSION['hash'])) {
 
-				if(isset($_SESSION['hash']))
-					echo json_encode(array("hash" => $_SESSION['hash']));
-				else
-					echo json_encode(array("hash" => false));
+					$mysqli->query("set names utf8");
 
-			break;
-			case "logout":
-			unset($_SESSION['id']);
-			unset($_SESSION['hash']);
-			unset($_SESSION['empresa']);
-			break;
+					$hash = $_SESSION['hash'];
+					$id = $_SESSION["id"];
+					
+					$queryResponse = $mysqli->query("select * from usuarios where id = '$id'") or die ($mysqli->error);
 
-			case "chooseCompany":
+					if($queryResponse->num_rows) {
+						$user = $queryResponse->fetch_assoc();
 
-				$_SESSION['empresa'] = $_GET['id'];
+						unset($user["password"]);
 
-				echo json_encode(array("success" => true));
-
-				break;
-
-			case "listEmpresas":
-
-			$id = $_SESSION["id"];
-			$queryString = "SELECT e.id, e.nome
+						$queryString = "
+							SELECT Count(*) as count, e.nome
 							FROM empresa_usuario AS eu
 							LEFT JOIN empresas AS e ON e.id = eu.empresa
 							WHERE usuario = $id";
 
-			$result = $mysqli->query($queryString);
+						$soloModeQuery = $mysqli->query($queryString);
 
-			$json = array();
+						if($soloModeQuery->num_rows) {
+							$smq = $soloModeQuery->fetch_assoc();
 
-			if($result->num_rows) {
-				while($row = $result->fetch_assoc()) {
-					array_push($json, $row);
+							$user["soloMode"] = ($smq["count"] > 1 && $smq["count"] != 0) ? false : true;
+						}
+
+						$data = array("user" => $user);
+
+						echo json_encode(array("hash" => $_SESSION['hash'], "data" => $data));
+					}
+
+					else {
+						echo json_encode(array("success" => false, "error" => "Usuario nao encontrado"));
+					}
+
 				}
+				else
+					echo json_encode(array("hash" => false));
+
+			break;
+		case "logout":
+			unset($_SESSION['id']);
+			unset($_SESSION['hash']);
+			unset($_SESSION['empresa-id']);
+			unset($_SESSION['empresa-cnpj']);
+			unset($_SESSION['user-type']);
+			unset($_SESSION['username']);
+		break;
+		case "chooseCompany":
+
+			$cnpj = $_POST['cnpj'];
+			ChooseCompany($cnpj, array("omitMessages" => false, "bypass" => true));
+			break;
+
+		case "listEmpresas":
+
+		$mysqli->query("set names utf8");
+
+		$id = $_SESSION["id"];
+
+		$queryString = "
+			SELECT e.id, e.nome, e.cnpj, e.ativa
+			FROM empresa_usuario AS eu
+			LEFT JOIN empresas AS e ON e.id = eu.empresa
+			WHERE usuario = $id
+			ORDER BY e.ativa DESC, e.nome";
+
+		$result = $mysqli->query($queryString);
+
+		$json = array();
+
+		if($result->num_rows) {
+			while($row = $result->fetch_assoc()) {
+				array_push($json, $row);
 			}
 
-			echo json_encode($json);
-
-			break;
-
-			case "signin":
-			/*$mysqli->query("insert into groups (name, timestamp) values ('$_SESSION[hash]', current_timestamp)") or die($mysqli->error);
-			$mysqli->query("insert into groups_meta (group_hash, group_hash) values ('$_SESSION[hash]', '$_SESSION[hash]')")  or die($mysqli->error);*/
-			break;
+			echo json_encode(array("success" => true, "data" => $json));
+			exit();
 		}
 
-		?>
+		else echo json_encode(array("success" => true, "data" => $json));
+
+		break;
+
+		case "getEmpresaInfo":
+
+		$cnpj = safe("cnpj", true);
+
+		ChooseCompany($cnpj, array("omitMessages" => true));
+
+		$res = $mysqli->query("select * from empresas where cnpj = $cnpj");
+
+		if($res->num_rows) {
+			$empresa = $res->fetch_assoc();
+
+			echo json_encode(array("success" => true, "data" => $empresa));
+			exit();
+		}
+
+		echo json_encode(array("success" => false));
+
+		break;
+
+		case "newCompany":
+
+		$nome = remove_accents($_POST['nome']);
+		$cnpj = $_POST['cnpj'];
+
+		$queryResponse = $mysqli->query("insert into empresas (nome, cnpj) values ('$nome', $cnpj)") or die($mysqli->error);
+
+		if($mysqli->affected_rows) {
+
+			$data = array(
+				"id" => $mysqli->insert_id,
+				"cnpj" => $cnpj,
+				"nome" => $nome
+			);
+
+			echo json_encode(array("success" => true, "data" => $data, "message" => "Registro concluido..."));
+
+			$company_id = $mysqli->insert_id;
+
+			$usersQueryResponse = $mysqli->query("select id from usuarios where type = 1 or type = 2") or die($mysqli->error);
+
+			if($usersQueryResponse->num_rows) {
+
+				$queryPiece = array();
+
+				while($user = $usersQueryResponse->fetch_assoc()) {
+					$user_id = $user['id'];
+
+					array_push($queryPiece, "('$company_id', $user_id)");
+				}
+
+				$queryPiece = implode(',', $queryPiece);
+
+				$empresaUsuarioQueryResponse = $mysqli->query("insert into empresa_usuario (empresa, usuario) values " . $queryPiece) or die($mysqli->error);
+			}
+
+			exit();
+		}
+
+		echo json_encode(array("success" => false));
+
+		break;
+
+		case "newDefaultUser":
+
+		$usuario = $_POST['usuario'];
+		$senha = md5($_POST['senha']);
+		$nome = $usuario;
+
+		$queryResponse = $mysqli->query("insert into usuarios (name, username, password, hash, active, priority) values ('$nome', '$usuario', '$senha', '$senha', 1, 6)") or die($mysqli->error);
+
+		if($mysqli->affected_rows) {
+			echo json_encode(array("success" => true));
+			exit();
+		}
+
+		echo json_encode(array("success" => false, "error" => $mysqli->error));
+
+		break;
+
+		case "editFile":
+
+			$obs = safe($_POST["obs"]);
+			$ano = safe($_POST["ano"]);
+			$mes = ($_POST["mes"] <= 9) ? '0' . $_POST["mes"] :  $_POST["mes"];
+			$hash = safe($_POST["hash"]);
+			$nome = safe($_POST["nome"]);
+
+			$vencimento = safe($_POST['vencimento']);
+
+			$queryResponse = $mysqli->query("update arquivos set obs = '$obs', ano = '$ano', mes = '$mes', nome = '$nome'". ($vencimento ? ", vencimento = '$vencimento'" : "") ." where hash = '$hash'") or die($mysqli->error);
+
+			if(!$mysqli->error) {
+				echo json_encode(array("success" => true));
+				exit();
+			}
+			
+			echo json_encode(array("success" => false));
+
+		break;
+
+		case "newDocType":
+
+			$nome = safe($_POST["nome"]);
+			$departamento = intval($_POST["ref_departamento"]);
+			$padrao = isBoolean($_POST["padrao"]);
+			$empresa = $_SESSION["empresa-id"];
+
+			$isParcelamento = false;
+
+			if(preg_match("/^Parcelamento/", $nome)) {
+				$isParcelamento = true;
+			}
+
+			$query = "insert into tipo_de_arquivos (nome, departamento". (!$padrao ? ", empresa" : "") . ($isParcelamento ? ", isParcelamento" : "") .") values ('$nome', $departamento". (!$padrao ? ", $empresa" : "") . ($isParcelamento ? ", 1" : "") .")";
+
+			$queryResponse = $mysqli->query($query) or die($mysqli->error);
+
+			if($mysqli->affected_rows) {
+				echo json_encode(array("success" => true));
+				exit();
+			}
+
+			echo json_encode(array("success" => false, "message" => $mysqli->error, "error" => true));
+
+		break;
+
+		case "whereAmI":
+
+			$departamento = $_GET["departamento"];
+			$tipo_de_arquivo = $_GET["tipo"];
+
+			$breadcrumb = array("Início");
+
+			$mysqli->query("set names utf8");
+
+			$queryResponse = $mysqli->query("select nome from departamentos where id = '$departamento'") or die($mysqli->error);
+
+			if($queryResponse->num_rows) {
+				$dep = $queryResponse->fetch_assoc();
+
+				array_push($breadcrumb, $dep["nome"]);
+			}
+
+			$queryResponse2 = $mysqli->query("select nome from tipo_de_arquivos where id = '$tipo_de_arquivo'") or die($mysqli->error);
+
+			if($queryResponse2->num_rows) {
+				$tipo = $queryResponse2->fetch_assoc();
+
+				array_push($breadcrumb, $tipo["nome"]);
+			}
+
+			if($queryResponse->num_rows || $queryResponse2->num_rows) {
+				echo json_encode(array("success" => true, "data" => implode("/", $breadcrumb)));
+				exit();
+			}
+
+			echo json_encode(array("success" => false, "message" => $mysqli->error, "error" => true));
+
+		break;
+
+		case "renameDocType":
+
+			$id = $_POST['id'];
+			$nome = safe($_POST['nome']);
+			$isParcelamento = false;
+
+			$mysqli->query("set names utf8");
+
+			if(preg_match("/^Parcelamento/", $nome)) {
+				$isParcelamento = true;
+			}
+
+			$res = $mysqli->query("update tipo_de_arquivos set nome = '$nome'". (($isParcelamento) ? ", isParcelamento = $isParcelamento" : "") ." where id = '$id' ");
+
+			if($res) {
+
+				$json = array("success" => true);
+
+				echo json_encode($json);
+				exit();
+			}
+
+			echo json_encode(array("success" => false));
+
+			break;
+
+		case "removeDocType":
+
+			$id = $_POST['id'];
+			$isDefault = intval($_POST['isDefault']);
+
+			$res = $mysqli->query("delete from tipo_de_arquivos where id = '$id'");
+
+			if($mysqli->affected_rows) {
+
+				$json = array("success" => true);
+
+				echo json_encode($json);
+				exit();
+			}
+
+			echo json_encode(array("success" => false));
+
+			break;
+
+	}

@@ -1,0 +1,62 @@
+<div ng-include src="'app/templates/arquivos/nav.html'"></div>
+
+<div class="archive_viewer">
+	<div class="shortcuts view-list">
+		<div ng-if="!currentFolder.length" class="center">
+			<h5 class="mg-top-60"><small>Nenhum arquivo encontrado</small></h5>
+		</div>
+		<table disable-selection ng-if="currentFolder.length" class="table-condensed bordered responsive-table">
+			<thead>
+				<tr>
+					<th ng-click="orderBy('nome')">Nome</th>
+					<th ng-click="orderBy('tipo')">Tipo</th>
+					<th ng-click="orderBy('referencia')">Referência</th>
+					<th ng-click="orderBy('data')">Data de criação</th>
+					<th ng-click="orderBy('vencimento')">Vencimento</th>
+					<th ng-click="orderBy('departamento')">Departamento</th>
+					<th ng-click="orderBy('obs')">Observações</th>
+					<th ng-click="orderBy('visualizado_em')">Visualizado em</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr contextmenu
+					ng-repeat="item in currentFolder | orderBy:orderByField:reverseSort"
+					data-id="{{item.id}}"
+					ng-dblclick="ContextMenu.chooseOption(null, item, 'doc.abrir')"
+					ng-class=	"{'tr-marked' : item.visualizado_em,
+								  'tr-overdue': !item.available && AllowTo(USER_TYPES.CLIENTE)}"
+					ng-attr-title="{{buildTitle(item)}}"
+				>
+
+					<td>{{item.nome}}</td>
+					<td>{{item.tipo}}</td>
+					<td>{{item.mes + '/' + item.ano}}</td>
+					<td>{{item.data | date: 'dd/MM/yyyy'}}</td>
+					<td>{{safe(item.vencimento) ? item.vencimento : "---" | date: 'dd/MM/yyyy'}}</td>
+					<td>{{item.departamento}}</td>
+					<td>{{(!safe(item.obs)) ? "---" : item.obs}}</td>
+					<td>{{(!safe(item.visualizado_em)) ? "---" : item.visualizado_em | date: 'dd/MM/yyyy'}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<div class="fab" ng-if="AllowTo(USER_TYPES.INTERNO)">
+	<div ng-mouseleave="visible = false;">
+		<button class="button waves-effect waves-light" ng-mouseenter="visible = true;" ng-class="{hover: visible}" ng-click="visible = false">
+			<icon class="icon first-icon" name="plus"></icon>
+			<icon class="icon second-icon" name="close"></icon>
+		</button>
+		<content ng-class="{show: visible, hide: !visible}">
+			<ul>
+				<li>
+					<button data-target="modal-upload" class="btn-floating purple" data-tooltip="Enviar arquivo" ng-click="visible = false;">
+						<icon name="upload"></icon>
+					</button>
+				</li>
+			</ul>
+		</content>
+	</div>
+	<fab-overlay ng-class="{show: visible}"></fab-overlay>
+</div>

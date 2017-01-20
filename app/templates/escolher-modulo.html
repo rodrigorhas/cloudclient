@@ -1,0 +1,15 @@
+<div class="full" layout="row" layout-align="center center">
+	<div class="choosemodule">
+		<md-content>
+			<md-list>
+				<md-subheader>Escolha um modulo</md-subheader>
+				<md-list-item ng-disabled="item.disabled" ng-repeat="item in modules track by $index" class="secondary-button-padding" ng-click="choose(item.link)">
+					<p>{{item.name}}</p>
+					<md-button class="md-icon-button" aria-label="Entrar no modulo" ng-disabled="item.disabled" href="{{item.link}}">
+						<icon name="arrow-right"></icon>
+					</md-button>
+				</md-list-item>
+			</md-list>
+		</md-content>
+	</div>
+</div>

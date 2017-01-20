@@ -1,0 +1,18 @@
+<nav>
+	<div class="nav-wrapper">  <!-- layout="column" layout-wrap -->
+		<button class="btn btn-flat" ng-hide="pages.disabled" ng-click="toggleMenu()"><icon name="menu"></icon></button>
+		<span class="breadcrumbs" ng-bind-html="navTitle"></span>
+
+		<!-- <div class="brand" flex="66">
+			<span class="breadcrumbs">{{empresa.nome}} &middot; {{Breadcrumbs.path}}</span>
+			<span><small>{{user.name}}</small></span>
+		</div> -->
+
+		<div class="right">
+			<button title="Alternar modo Tela Cheia" class="btn btn-flat" ng-click='fullscreen($event)'><icon  name="fullscreen" ></icon></button>
+			<button title="Pesquisar" data-target="modal-search" class="btn btn-flat"><icon name="search"></icon></button>
+			<a ng-if="!user.soloMode" title="Trocar de empresa" href="#/arquivos/escolher-empresa" class="btn btn-flat"><icon name="undo"></icon></a>
+			<a title="Sair do sistema" href="logout.php" class="btn btn-flat"><icon name="close"></icon></a>
+		</div>
+	</div>
+</nav>

@@ -1,0 +1,35 @@
+DOCSCACP - Log de Ações
+
+ #[LOG]
+
+ # 28/12/2016
+
+	- Submit do formulário de cadastro de arquivo foi arrumado para nao enviar se os campos devidos nao forem informados.
+	- Espaçamento do icone e o nome da lista de departamentos/tipos.
+	- Adição do menu lateral
+	- Adição do sistema de modulos (incompleto)
+	- redirect route para links externos (como email com link)
+
+ # 29/12/2016
+
+ 	- 
+
+ #[TODO]
+ 	- [Feito] Rotina de renomear tipo_de_arquivo
+ 		- [Feito] Checar se tem o nome "Parcelamento" e setar o campo isParcelamento como 1
+ 		- [Feito] Mesma coisa quando criar novo tipo_de_arquivo
+ 	- [Feito] Diminuir espaçamento do ChooseCompany (<TR>)
+ 	- Checar porque o usuario "Brandao" é reconhecido
+ 	- Sempre enviar um email automático quando algum arquivo for salvo na pasta "Documentos Enviados" no setor fiscal
+ 		- Checa todos os arquivos que foram enviados e envia um email com o lote
+ 		- Email descrevendo quantos e quais arquivos foram enviados com uma table HTML com informações do arquivo
+ 	- [Feito] Mudar o cursos do ChooseCompany <table tr> para pointer
+ 	- [Feito] Modal EditFile - Mudar botão Enviar para "Salvar"
+ 		#-> Revi todos os modals do index.php para ver se estava tudo ok, mudei alguns para ficar comforme o contexto
+
+ 	- Criar pasta Documentos Enviados ***
+ 	- [Feito] Verificar porque esta aparecendo o title "Arquivo indisponivel" em tudo
+
+ 	$ - Verificar essa historia de empresa inativa
+ 	$ - Verificar que PORRA que ta acontecendo no ChooseCompany <table tr [last]>
+ 	$ - Fazer funcao pra checar se o form de envio de arquivos é $invalid (função)

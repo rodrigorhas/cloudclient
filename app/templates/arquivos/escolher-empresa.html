@@ -1,0 +1,73 @@
+<div class="container">
+	<div class="row">
+		<center>
+			<p class="title">Escolha uma empresa:</p>
+
+			<div style="width: 250px">
+				<md-input-container>
+					<input type="text" class="search-input" md-autofocus placeholder="Pesquise por nome..." ng-model="ccsi">
+				</md-input-container>
+			</div>
+
+			<div class="scroll-300">
+				<table class="cc">
+					<tbody disable-selection>
+						<tr 
+							ng-class="{'tr-disabled': empresa.ativa == '0'}"
+							ng-repeat="empresa in empresas | filter: {nome: ccsi}"
+							ng-dblclick="chooseCompany(empresa.cnpj)">
+
+							<td>{{empresa.nome}}</td>
+							<td>{{empresa.cnpj | cnpj }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<p style="margin-top: 26px;" ng-if="user.type == USER_TYPES.CHEFE">
+				<a class="btn btn-primary" data-target="addCompany">Adicionar empresa</a>
+			</p>
+		</center>
+	</div>
+</div>
+
+<div class="modal" id="addCompany" ng-controller="FormAddCompany">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center">
+            <div class="modal-content">
+				<h5>Adicionar Empresa</h5>
+
+				<md-input-container>
+					<label>Nome completo da empresa</label>
+					<input type="text" ng-model="form.data.company.nome">
+				</md-input-container>
+
+				<md-input-container>
+					<label>CNPJ</label>
+					<input type="text" ng-model="form.data.company.cnpj" mask="99.999.999/9999-99">
+				</md-input-container>
+
+				<p>
+					<strong>Usuario padrão da empresa para acesso do cliente</strong>
+					<br>
+					<small>Não obrigatório</small>
+				</p>
+
+				<md-input-container>
+					<label>Usuario</label>
+					<input type="text" ng-model="form.data.user.usuario">
+				</md-input-container>
+
+				<md-input-container>
+					<label>Senha</label>
+					<input type="password" ng-model="form.data.user.senha">
+				</md-input-container>
+
+            </div>
+			<div class="modal-footer">
+		      <button ng-click="form.save()" class="modal-action modal-close waves-effect waves-green btn-flat">salvar</button>
+		      <button ng-click="form.clearForm()" class="modal-action modal-close waves-effect waves-green btn-flat">fechar</button>
+		    </div>
+        </div>
+    </div>
+</div>
