@@ -35,7 +35,7 @@ app.controller('mainController', function(
 
         {
             name: "Agendar Tarefas",
-            link: "#/tarefas",
+            link: "#/tarefas/inbox",
             icon: "calendar-note",
             disabled: false
         }
@@ -70,6 +70,7 @@ app.controller('mainController', function(
     }
 
     Database
+        .Arquivos
 		.getDepartamentos()
 		.then(function (response) {
 			$timeout(function () {

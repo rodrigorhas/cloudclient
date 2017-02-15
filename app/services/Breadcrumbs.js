@@ -31,8 +31,6 @@ angular
 				}
 
 				$rootScope.Breadcrumbs.path = path;
-
-				console.log("set");
 			});
 		},
 

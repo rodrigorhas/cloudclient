@@ -54,6 +54,7 @@ angular
 					var req = {nome: nome, cnpj: cnpj};
 
 					Database
+						.Arquivos
 						.newCompany(req)
 						.then(function (response) {
 							$timeout(function () {

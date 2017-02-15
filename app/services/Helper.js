@@ -197,6 +197,21 @@ angular
 					}
 				});
 			});
+	    },
+
+	    $onRoot: function (key, fn) {
+	    	$timeout(function () {
+				$rootScope.$on(key, function (e, $data) {
+					if($data) {
+						//console.log(key, $data);
+						fn($data);
+					}
+				});
+			});
+	    },
+
+	    $dispatch: function (component, event, data) {
+	    	$rootScope.$broadcast(component + ":" + event, data);
 	    }
 	}
 

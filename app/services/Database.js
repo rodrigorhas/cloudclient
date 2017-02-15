@@ -1,6 +1,6 @@
 angular
 .module('App')
-.factory("Database", function ($timeout, $http, $helper) {
+.factory("Database", function ($timeout, $http, $helper, $route) {
 
 	var BestReject = function (message, reject) {
 		$helper.toast(message);
@@ -26,8 +26,20 @@ angular
 					resolve(response);
 				}
 
-				else if(response.error)
-					return (response.message) ? BestReject(response.message, reject) : reject();
+				else if(response.error) {
+					if(response.message) {
+						BestReject(response.message, reject);
+
+						if(response.action) {
+							var $action = response.action;
+
+							if($action == "REDIRECT")
+								$helper.path("/redirect" + $route.$$route.originalPath);
+						}
+					}
+
+					else reject();
+				}
 			}
 
 			catch (e) {
@@ -36,7 +48,7 @@ angular
 		});
 	};
 
-	var Database = {
+	var Arquivos = {
 		newDocType: function (data) {
 			return new Promise (function (resolve, reject) {
 				$.ajax({
@@ -305,6 +317,65 @@ angular
 				});
 			});
 		}
+	}
+
+	var Tarefas = {
+		getAllFrom: function (data) {
+			return new Promise (function (resolve, reject) {
+				$.ajax({
+					url: "app/modules/nevernotes/app/requests/request.php?module=getAllFrom",
+					method: "POST",
+					data: data
+				})
+				.success(function (response) {
+					json(response)
+						.then(resolve)
+						.catch(function () {
+							console.error('PROMISE :: REJECTED');
+							reject();
+						});
+				});
+			});
+		},
+
+		getInbox: function () {
+			return new Promise (function (resolve, reject) {
+				$.ajax({
+					url: "app/modules/nevernotes/app/requests/request.php?module=getInbox",
+					method: "POST"
+				})
+				.success(function (response) {
+					json(response)
+						.then(resolve)
+						.catch(function () {
+							console.error('PROMISE :: REJECTED');
+							reject();
+						});
+				});
+			});
+		},
+
+		getTasksResume: function () {
+			return new Promise (function (resolve, reject) {
+				$.ajax({
+					url: "app/modules/nevernotes/app/requests/request.php?module=getTasksResume",
+					method: "POST"
+				})
+				.success(function (response) {
+					json(response)
+						.then(resolve)
+						.catch(function () {
+							console.error('PROMISE :: REJECTED');
+							reject();
+						});
+				});
+			});
+		},
+	}
+
+	var Database = {
+		Arquivos: Arquivos,
+		Tarefas: Tarefas
 	}
 
 	return Database;

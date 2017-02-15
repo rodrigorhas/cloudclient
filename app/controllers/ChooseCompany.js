@@ -5,6 +5,7 @@ angular
 	$("#addCompany").modal();
 
 	Database
+		.Arquivos
 		.listEmpresas()
 		.then(function (response) {
 			$timeout(function () {
@@ -20,6 +21,7 @@ angular
 
 	$scope.chooseCompany = function (cnpj) {
 		Database
+			.Arquivos
 			.chooseCompany({cnpj: cnpj})
 			.then(function (response) {
 				$rootScope.empresa = response.empresa;

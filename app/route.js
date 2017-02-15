@@ -117,7 +117,7 @@
 
 				resolve: {
 					DepartamentosQuery: function (Database) {
-						return Database.getDepartamentos();
+						return Database.Arquivos.getDepartamentos();
 					}
 				}
 			})
@@ -130,7 +130,7 @@
 					DocTypeQuery: function (Database, $route) {
 						var param = $route.current.params;
 
-						return Database.getDocType({departamento: param.departamento});
+						return Database.Arquivos.getDocType({departamento: param.departamento});
 					}
 				}
 			})
@@ -143,13 +143,13 @@
 					DocsQuery: function (Database, $route) {
 						var param = $route.current.params;
 
-						return Database.getDocs({departamento: param.departamento, tipoDeArquivo: param.tipo});
+						return Database.Arquivos.getDocs({departamento: param.departamento, tipoDeArquivo: param.tipo});
 					},
 
 					TipoDeArquivoQuery: function (Database, $route) {
 						var param = $route.current.params;
 
-						return Database.getDocType({departamento: param.departamento});
+						return Database.Arquivos.getDocType({departamento: param.departamento});
 					}
 				}
 			})
@@ -159,11 +159,11 @@
 				controller: "SearchResult"
 			})
 
-			.when('/tarefas', {
+			.when('/tarefas/inbox', {
 				templateUrl: "app/modules/nevernotes/app/templates/home.html",
 				controller: "App.Nevernotes.MainController",
 
-				resolve: helper.resolveFor('quill', 'ngQuill', 'App.Nevernotes')
+				resolve: helper.resolveFor('ui.materialize','quill','ngQuill','App.Nevernotes')
 			})
 
       .when('/arquivos/certidoes', {
@@ -173,7 +173,7 @@
 
         resolve: {
           CertidoesQuery: function (Database) {
-            return Database.checarValidadeDeTodasAsCertidoes();
+            return Database.Arquivos.checarValidadeDeTodasAsCertidoes();
           }
         }
       })

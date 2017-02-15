@@ -21,6 +21,7 @@
 			'ngStorage',
 			'ngTouch',
 			'ngSanitize',
-			'indexedDB'
+			'indexedDB',
+			//'ui.materialize'
 		]);
 })();

@@ -12,6 +12,7 @@ angular
 	$timeout(function () {
 		if($routeParams.departamento == 4 && $rootScope.AllowTo(USER_TYPES.INTERNO)) { // Setor Jurídico - ACESSO INTERNO
 			Database
+				.Arquivos
 		        .checarValidadeCertidoes()
 		        .then(function (response) {
 		            var data = response.data;

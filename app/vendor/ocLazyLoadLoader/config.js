@@ -39,16 +39,17 @@
 
             'moment' :            ['vendor/moment/min/moment-with-locales.min.js'],
 
-            'quill':              /*["http://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/monokai-sublime.min.css",
-                                    "http://cdn.quilljs.com/1.1.9/quill.snow.css",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js",
-                                    "http://cdn.quilljs.com/1.1.9/quill.min.js"]*/[],
+            "quill":               ["app/modules/nevernotes/app/vendors/quilljs/katex.min.css",
+                                    "app/modules/nevernotes/app/vendors/quilljs/monokai-sublime.min.css",
+                                    "app/modules/nevernotes/app/vendors/quilljs/quill.snow.css",
+                                    "app/modules/nevernotes/app/vendors/quilljs/katex.min.js",
+                                    "app/modules/nevernotes/app/vendors/quilljs/highlight.min.js",
+                                    "app/modules/nevernotes/app/vendors/quilljs/quill.min.js"],
           },
           // Angular based script (use the right module name)
           modules: [
             {name: "ngQuill", files: ['app/modules/nevernotes/bower_components/ngQuill/src/ng-quill.js']},
+            {name: "ui.materialize", files: ['app/modules/nevernotes/app/vendors/angular-materialize/angular-materialize.min.js']},
             {name: 'App.Nevernotes',            files: [
                                                         //"app/modules/nevernotes/app/vendors/bootstrap/dist/css/bootstrap.min.css",
                                                         "app/modules/nevernotes/app/css/style.css",
